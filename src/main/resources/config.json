@@ -1,0 +1,189 @@
+{
+  "simulation": {
+    "name": "Drone-Assisted Communication Simulation",
+    "version": "1.0.0",
+    "description": "Game-theoretic load balancing in air-ground collaborative networks",
+    "duration": 3600,
+    "timeStep": 1.0,
+    "area": {
+      "width": 5000,
+      "height": 5000,
+      "unit": "meters"
+    }
+  },
+  "scenarios": {
+    "basic": {
+      "name": "Basic Air-Ground Collaboration",
+      "droneCount": 4,
+      "groundStationCount": 4,
+      "userCount": 50,
+      "gameType": "NASH_EQUILIBRIUM"
+    },
+    "highTraffic": {
+      "name": "High Traffic Load Scenario",
+      "droneCount": 6,
+      "groundStationCount": 6,
+      "userCount": 150,
+      "gameType": "NASH_EQUILIBRIUM"
+    },
+    "gameComparison": {
+      "name": "Game Theory Optimization Comparison",
+      "droneCount": 4,
+      "groundStationCount": 4,
+      "userCount": 100,
+      "gameTypes": ["NASH_EQUILIBRIUM", "STACKELBERG_GAME", "COOPERATIVE_GAME"]
+    },
+    "dynamic": {
+      "name": "Dynamic Positioning Scenario",
+      "droneCount": 5,
+      "groundStationCount": 3,
+      "userCount": 80,
+      "gameType": "COOPERATIVE_GAME",
+      "mobilityEnabled": true
+    }
+  },
+  "entities": {
+    "droneBaseStations": {
+      "defaultSpecs": {
+        "mips": 800,
+        "ram": 1024,
+        "bandwidth": 500000,
+        "storage": 5000
+      },
+      "physicalParams": {
+        "transmissionPower": 10.0,
+        "coverageRadius": 500.0,
+        "maxAltitude": 300.0,
+        "maxSpeed": 15.0,
+        "energyCapacity": 100000.0,
+        "maxUsers": 20
+      }
+    },
+    "groundBaseStations": {
+      "defaultSpecs": {
+        "mips": 1000,
+        "ram": 2048,
+        "bandwidth": 1000000,
+        "storage": 10000
+      },
+      "physicalParams": {
+        "transmissionPower": 50.0,
+        "coverageRadius": 1500.0,
+        "maxUsers": 50
+      }
+    },
+    "mobileUsers": {
+      "trafficParams": {
+        "maxDataRate": 10000000,
+        "dataRateVariation": 0.4
+      },
+      "mobilityParams": {
+        "speedRange": {
+          "min": 1.0,
+          "max": 5.0,
+          "unit": "m/s"
+        },
+        "patterns": {
+          "STATIC": 0.2,
+          "RANDOM_WALK": 0.3,
+          "CIRCULAR": 0.2,
+          "LINEAR": 0.15,
+          "HOTSPOT_MOBILE": 0.15
+        }
+      },
+      "qosRequirements": {
+        "maxLatency": 150.0,
+        "minThroughputRatio": 0.3,
+        "priorityRange": {
+          "min": 0.3,
+          "max": 1.0
+        }
+      }
+    }
+  },
+  "gameTheory": {
+    "algorithms": {
+      "nashEquilibrium": {
+        "maxIterations": 100,
+        "convergenceThreshold": 0.001,
+        "weights": {
+          "load": 0.4,
+          "energy": 0.3,
+          "qos": 0.3
+        }
+      },
+      "stackelbergGame": {
+        "leaderFollowerRatio": 0.5,
+        "maxIterations": 50,
+        "weights": {
+          "leader": {
+            "load": 0.5,
+            "energy": 0.2,
+            "qos": 0.3
+          },
+          "follower": {
+            "load": 0.3,
+            "energy": 0.4,
+            "qos": 0.3
+          }
+        }
+      },
+      "cooperativeGame": {
+        "cooperationWeight": 0.6,
+        "sharingThreshold": 0.8,
+        "weights": {
+          "load": 0.3,
+          "energy": 0.3,
+          "qos": 0.4
+        }
+      },
+      "auctionBased": {
+        "bidIncrements": 0.1,
+        "maxBidRounds": 20,
+        "reservePrice": 0.1
+      }
+    }
+  },
+  "metrics": {
+    "collection": {
+      "interval": 10.0,
+      "enabled": true
+    },
+    "kpis": {
+      "latency": {
+        "target": 50.0,
+        "threshold": 100.0,
+        "unit": "milliseconds"
+      },
+      "throughput": {
+        "target": 100.0,
+        "unit": "Mbps"
+      },
+      "energy": {
+        "unit": "Joules"
+      },
+      "loadBalance": {
+        "maxVariance": 5.0
+      },
+      "userSatisfaction": {
+        "target": 0.8,
+        "unit": "ratio"
+      }
+    }
+  },
+  "output": {
+    "resultsDirectory": "./results",
+    "formats": {
+      "json": true,
+      "csv": true,
+      "charts": true,
+      "reports": true
+    },
+    "charts": {
+      "width": 800,
+      "height": 600,
+      "format": "PNG"
+    },
+    "verbosity": "INFO"
+  }
+}
