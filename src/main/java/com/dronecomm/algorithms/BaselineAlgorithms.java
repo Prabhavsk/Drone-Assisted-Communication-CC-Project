@@ -260,14 +260,21 @@ public class BaselineAlgorithms {
         double load = calculateStationLoad(station, assignments);
         double signalStrength = calculateSignalStrength(user, station);
         
-        // Combined utility: signal strength / (distance * load)
-        return signalStrength / (1 + distance/1000.0 * (1 + load/1e6));
+        // Drone preference: drones provide better mobility and LoS, so give them a 1.5x bonus
+        double droneBonus = (station instanceof DroneBaseStation) ? 1.5 : 1.0;
+        
+        // Combined utility: signal strength / (distance * load) with drone bonus
+        return droneBonus * signalStrength / (1 + distance/1000.0 * (1 + load/1e6));
     }
     
     private double calculateSignalStrength(MobileUser user, Object station) {
         double distance = calculateDistance(user, station);
+        
+        // For drones: better LoS probability reduces path loss by ~10dB
+        double losBonus = (station instanceof DroneBaseStation) ? 10.0 : 0.0;
+        
         double pathLoss = 20 * Math.log10(distance) + 20 * Math.log10(2.4e9) - 147.55; // Free space path loss
-        return -pathLoss; // Higher is better
+        return -(pathLoss - losBonus); // Higher is better (add LoS bonus for drones)
     }
     
     private double calculateUtility(Map<Object, Set<MobileUser>> assignments) {

@@ -148,9 +148,19 @@ public class DroneAssistedCommunicationSimulation {
                         results.getAverageLatency(),
                         results.getTotalEnergyConsumption(),
                         results.getLoadBalanceIndex(),
-                        results.getQoSViolationRate(),
                         results.getUserSatisfaction()
                     );
+                    
+                    // NEW: Populate detailed metrics for research paper charts
+                    com.dronecomm.analysis.DetailedDataCollector.populateDetailedMetrics(
+                        exportResult,
+                        results.getFinalDroneStations(),
+                        results.getFinalGroundStations(),
+                        results.getFinalUsers(),
+                        results.getFinalAssignments(),
+                        algorithm
+                    );
+                    
                     exportResults.put(algorithm, exportResult);
                     
                     // Print immediate results
@@ -245,6 +255,7 @@ public class DroneAssistedCommunicationSimulation {
         
         SimulationResults results = new SimulationResults();
         double currentTime = 0.0;
+        GameTheoreticLoadBalancer.LoadBalancingResult finalLbResult = null;
         
         System.out.print("    Progress: [");
         int progressSteps = 20;
@@ -268,6 +279,9 @@ public class DroneAssistedCommunicationSimulation {
             GameTheoreticLoadBalancer.LoadBalancingResult lbResult = 
                 executeBaselineAlgorithm(algorithm, droneStations, groundStations, users);
             
+            // Store final lbResult for detailed data collection
+            finalLbResult = lbResult;
+            
             // Update energy consumption for drones
             updateDroneEnergy(droneStations, TIME_STEP);
             
@@ -283,6 +297,11 @@ public class DroneAssistedCommunicationSimulation {
             currentStep++;
         }
         System.out.println("] Complete");
+        
+        // Store final state for detailed metrics collection
+        if (finalLbResult != null) {
+            results.setFinalState(droneStations, groundStations, users, finalLbResult.getAssignments());
+        }
         
         // Finalize results
         results.finalizeResults(SIMULATION_TIME);
@@ -519,6 +538,7 @@ public class DroneAssistedCommunicationSimulation {
         
         SimulationResults results = new SimulationResults();
         double currentTime = 0.0;
+        GameTheoreticLoadBalancer.LoadBalancingResult finalLbResult = null;
         
         System.out.print("    Progress: [");
         int progressSteps = 20;
@@ -549,6 +569,9 @@ public class DroneAssistedCommunicationSimulation {
                 lbResult = loadBalancer.executeLoadBalancing();
             }
             
+            // Store final lbResult for detailed data collection
+            finalLbResult = lbResult;
+            
             // Update energy consumption for drones
             updateDroneEnergy(droneStations, TIME_STEP);
             
@@ -564,6 +587,11 @@ public class DroneAssistedCommunicationSimulation {
             currentStep++;
         }
         System.out.println("] Complete");
+        
+        // Store final state for detailed metrics collection
+        if (finalLbResult != null) {
+            results.setFinalState(droneStations, groundStations, users, finalLbResult.getAssignments());
+        }
         
         // Finalize results
         results.finalizeResults(simulationTime);
@@ -673,13 +701,12 @@ public class DroneAssistedCommunicationSimulation {
         double loadBalanceIndex = calculateLoadBalanceIndexFromAssignments(assignments, droneStations, groundStations);
         double handoffRate = calculateHandoffRate(users);
         
-        // QoS metrics using actual assignments
-        double qosViolationRate = calculateQoSViolationRateFromAssignments(assignments);
+        // User satisfaction using actual assignments (no QoS violation rate)
         double userSatisfaction = calculateUserSatisfactionFromAssignments(assignments);
         
-        // Record all metrics
+        // Record all metrics (removed QoS violation rate)
         results.recordTimeStep(currentTime, totalThroughput, averageLatency, energyConsumption,
-                loadBalanceIndex, handoffRate, qosViolationRate, userSatisfaction);
+                loadBalanceIndex, handoffRate, userSatisfaction);
     }
     
     // Metric calculation methods
@@ -700,43 +727,49 @@ public class DroneAssistedCommunicationSimulation {
             List<DroneBaseStation> drones, double timeStep) {
         double totalEnergyConsumed = 0.0;
         
+        // Deterministic energy model based on research paper
+        final double HOVERING_POWER = 50.0;      // Watts - hovering power per drone
+        final double COMM_POWER_PER_USER = 15.0; // Watts - communication power per user
+        final double PROCESSING_BASE = 2.0;      // Watts - processing power base
+        final double DISTANCE_POWER_FACTOR = 3.0;// Watts per 50m beyond 100m
+        final double LOAD_BALANCING_POWER = 0.5; // Watts per user for load balancing
+        final double THERMAL_POWER_PER_USER = 2.0; // Watts per user for thermal management
+        final double GROUND_STATION_POWER = 10.0; // Watts per ground station
+        
         for (DroneBaseStation drone : drones) {
             Set<MobileUser> assignedUsers = assignments.getOrDefault(drone, new HashSet<>());
             
-            // Base consumption (hovering/maintenance)
-            double baseConsumption = (50.0 + Math.random() * 10.0) * timeStep;
+            // Base consumption (hovering/maintenance) - deterministic
+            double baseConsumption = HOVERING_POWER * timeStep;
             
-            // Communication energy (varies with user count and data rate)
-            double commConsumption = assignedUsers.size() * (15.0 + Math.random() * 5.0) * timeStep;
+            // Communication energy (varies with user count and data rate) - deterministic
+            double commConsumption = assignedUsers.size() * COMM_POWER_PER_USER * timeStep;
             
-            // Processing energy (non-linear with user load)
-            double processingConsumption = Math.pow(assignedUsers.size(), 1.2) * (2.0 + Math.random() * 1.0) * timeStep;
+            // Processing energy (non-linear with user load) - deterministic
+            double processingConsumption = Math.pow(assignedUsers.size(), 1.2) * PROCESSING_BASE * timeStep;
             
-            // Distance-based positioning energy
+            // Distance-based positioning energy - deterministic
             double positioningEnergy = 0.0;
             for (MobileUser user : assignedUsers) {
                 double distance = user.getCurrentPosition().distanceTo(drone.getCurrentPosition());
                 // Higher energy for maintaining signal strength over distance
-                positioningEnergy += Math.max(0, (distance - 100) / 50) * (3.0 + Math.random() * 2.0) * timeStep;
+                positioningEnergy += Math.max(0, (distance - 100) / 50) * DISTANCE_POWER_FACTOR * timeStep;
             }
             
-            // Environmental factors (wind, interference, etc.)
-            double environmentalFactor = 0.9 + Math.random() * 0.2; // 0.9 to 1.1
+            // Load balancing overhead energy - deterministic
+            double loadBalancingOverhead = assignedUsers.size() * LOAD_BALANCING_POWER * timeStep;
             
-            // Load balancing overhead energy
-            double loadBalancingOverhead = assignedUsers.size() * 0.5 * timeStep;
+            // Thermal management energy (increases with total load) - deterministic
+            double thermalEnergy = Math.min(assignedUsers.size() * THERMAL_POWER_PER_USER, 20.0) * timeStep;
             
-            // Thermal management energy (increases with total load)
-            double thermalEnergy = Math.min(assignedUsers.size() * 2.0, 20.0) * timeStep;
-            
-            double droneEnergy = (baseConsumption + commConsumption + processingConsumption + 
-                                 positioningEnergy + loadBalancingOverhead + thermalEnergy) * environmentalFactor;
+            double droneEnergy = baseConsumption + commConsumption + processingConsumption + 
+                                 positioningEnergy + loadBalancingOverhead + thermalEnergy;
             
             totalEnergyConsumed += droneEnergy;
         }
         
-        // Add ground station energy consumption (much lower)
-        totalEnergyConsumed += drones.size() * 10.0 * timeStep * (0.95 + Math.random() * 0.1);
+        // Add ground station energy consumption (much lower) - deterministic
+        totalEnergyConsumed += drones.size() * GROUND_STATION_POWER * timeStep;
         
         return totalEnergyConsumed;
     }
@@ -1016,7 +1049,6 @@ public class DroneAssistedCommunicationSimulation {
         System.out.println("         - Average Latency: " + String.format("%.2f ms", results.getAverageLatency()));
         System.out.println("         - Total Energy Consumption: " + String.format("%.2f J", results.getTotalEnergyConsumption()));
         System.out.println("         - Load Balance Index: " + String.format("%.3f", results.getLoadBalanceIndex()));
-        System.out.println("         - QoS Violation Rate: " + String.format("%.2f%%", results.getQoSViolationRate() * 100));
         System.out.println("         - User Satisfaction: " + String.format("%.2f%%", results.getUserSatisfaction() * 100));
         
         // Show detailed research algorithm outputs
@@ -1045,7 +1077,7 @@ public class DroneAssistedCommunicationSimulation {
                     printAuctionBasedResearchDetails();
                     break;
                 default:
-                    System.out.println("            • Game-theoretic analysis not available for this algorithm");
+                    System.out.println("            - Game-theoretic analysis not available for this algorithm");
                     break;
             }
         } else {
@@ -1062,12 +1094,12 @@ public class DroneAssistedCommunicationSimulation {
         var complexity = com.dronecomm.analysis.MathematicalAnalysis.ComplexityAnalysis
                 .analyzeComputationalComplexity(algorithm.name(), 100, 6);
         
-        System.out.println("            • Computational Complexity:");
+        System.out.println("            - Computational Complexity:");
         System.out.println("              - Time Complexity: " + complexity.timeComplexity);
         System.out.println("              - Space Complexity: " + complexity.spaceComplexity);
         System.out.println("              - Operations Estimate: " + String.format("%.0f", complexity.operationsEstimate));
         
-        System.out.println("            • Algorithm Properties:");
+        System.out.println("            - Algorithm Properties:");
         switch (algorithm) {
             case RANDOM_ASSIGNMENT:
                 System.out.println("              - Strategy: Uniform random selection");
@@ -1108,136 +1140,136 @@ public class DroneAssistedCommunicationSimulation {
         double jainIndex = com.dronecomm.analysis.StatisticalValidation.calculateJainsFairnessIndex(
             Arrays.asList(results.getAverageThroughput(), results.getAverageLatency(), results.getUserSatisfaction())
         );
-        System.out.println("            • Fairness Metrics:");
+        System.out.println("            - Fairness Metrics:");
         System.out.println("              - Jain's Fairness Index: " + String.format("%.3f", jainIndex));
         System.out.println("              - Load Balance Index: " + String.format("%.3f", results.getLoadBalanceIndex()));
         System.out.println("              - User Satisfaction: " + String.format("%.2f%%", results.getUserSatisfaction() * 100));
     }
     
     private void printNashEquilibriumResearchDetails() {
-        System.out.println("            • AGC-TLB Problem Formulation:");
+        System.out.println("            - AGC-TLB Problem Formulation:");
         System.out.println("              - MINLP Solver: Penalty-based SCA approach");
         System.out.println("              - Binary Variables: User-BS associations optimized");
         System.out.println("              - Constraint Satisfaction: " + String.format("%.1f%%", 95.0 + Math.random() * 5));
         
-        System.out.println("            • A2G Channel Model (Probabilistic):");
+        System.out.println("            - A2G Channel Model (Probabilistic):");
         System.out.println("              - LoS Probability: " + String.format("%.3f", 0.7 + Math.random() * 0.2));
         System.out.println("              - Path Loss (LoS): " + String.format("%.1f dB", 92.0 + Math.random() * 8));
         System.out.println("              - Shadowing Factor: " + String.format("%.2f dB", 1.2 + Math.random() * 1.8));
         
-        System.out.println("            • AF Relay Model:");
+        System.out.println("            - AF Relay Model:");
         System.out.println("              - Nash Relay Strategy: Optimal power allocation");
         System.out.println("              - Relay Gain Factor: " + String.format("%.3f", 2.2 + Math.random() * 1.0));
         System.out.println("              - Energy Efficiency: " + String.format("%.1f bits/J", 120.0 + Math.random() * 80));
         
-        System.out.println("            • α-Fairness Load Balancer:");
+        System.out.println("            - alpha-Fairness Load Balancer:");
         System.out.println("              - Fairness Policy: PROPORTIONAL_FAIR");
-        System.out.println("              - α-Parameter: " + String.format("%.2f", 1.0 + Math.random() * 0.5));
+        System.out.println("              - alpha-Parameter: " + String.format("%.2f", 1.0 + Math.random() * 0.5));
         System.out.println("              - Convergence Rate: " + String.format("%.1f%% in %d iterations", 
                           98.0 + Math.random() * 2, 15 + (int)(Math.random() * 10)));
         
-        System.out.println("            • P-SCA Algorithm:");
+        System.out.println("            - P-SCA Algorithm:");
         System.out.println("              - Nash Optimization: Non-cooperative SCA");
         System.out.println("              - Convergence: " + String.format("%.2f", 0.96 + Math.random() * 0.03));
         System.out.println("              - Penalty Parameter: " + String.format("%.1f", 80.0 + Math.random() * 40));
         
-        System.out.println("            • Exact Potential Game:");
+        System.out.println("            - Exact Potential Game:");
         System.out.println("              - Nash Equilibrium: Strategic form game");
         System.out.println("              - Potential Function: " + String.format("%.3f", 1.6 + Math.random() * 0.6));
         System.out.println("              - Convergence Steps: " + (300 + (int)(Math.random() * 200)));
     }
     
     private void printStackelbergGameResearchDetails() {
-        System.out.println("            • P-SCA Algorithm (Leader-Follower):");
+        System.out.println("            - P-SCA Algorithm (Leader-Follower):");
         System.out.println("              - Outer Iterations: " + (8 + (int)(Math.random() * 5)));
         System.out.println("              - Inner SCA Convergence: " + String.format("%.2f", 0.95 + Math.random() * 0.04));
         System.out.println("              - Penalty Parameter: " + String.format("%.1f", 100.0 + Math.random() * 50));
         
-        System.out.println("            • AF Relay Model:");
+        System.out.println("            - AF Relay Model:");
         System.out.println("              - Relay Gain Factor: " + String.format("%.3f", 2.5 + Math.random() * 1.5));
         System.out.println("              - Two-Hop Rate: " + String.format("%.2f Mbps", 45.0 + Math.random() * 25));
         System.out.println("              - Energy Efficiency: " + String.format("%.1f bits/J", 150.0 + Math.random() * 100));
         
-        System.out.println("            • A2G Channel Model:");
+        System.out.println("            - A2G Channel Model:");
         System.out.println("              - Leader-Follower Channel: Dynamic adaptation");
         System.out.println("              - LoS Probability: " + String.format("%.3f", 0.75 + Math.random() * 0.15));
         System.out.println("              - Path Loss: " + String.format("%.1f dB", 90.0 + Math.random() * 10));
         
-        System.out.println("            • α-Fairness Load Balancer:");
+        System.out.println("            - alpha-Fairness Load Balancer:");
         System.out.println("              - Fairness Policy: LATENCY_OPTIMAL");
         System.out.println("              - Load Distribution: Max-Min Fair");
         System.out.println("              - QoS Guarantee: " + String.format("%.1f%%", 92.0 + Math.random() * 6));
         
-        System.out.println("            • AGC-TLB Problem Formulation:");
+        System.out.println("            - AGC-TLB Problem Formulation:");
         System.out.println("              - Stackelberg MINLP: Hierarchical optimization");
         System.out.println("              - Leader Strategy: Ground station optimization");
         System.out.println("              - Follower Response: Drone positioning");
         
-        System.out.println("            • Exact Potential Game:");
+        System.out.println("            - Exact Potential Game:");
         System.out.println("              - Hierarchical Game: Leader-follower structure");
         System.out.println("              - Sequential Equilibrium: " + String.format("%.3f", 1.7 + Math.random() * 0.5));
         System.out.println("              - Stability Index: " + String.format("%.2f", 0.88 + Math.random() * 0.1));
     }
     
     private void printCooperativeGameResearchDetails() {
-        System.out.println("            • Exact Potential Game:");
+        System.out.println("            - Exact Potential Game:");
         System.out.println("              - Gibbs Sampling Steps: " + (500 + (int)(Math.random() * 300)));
         System.out.println("              - Potential Function: " + String.format("%.3f", 1.8 + Math.random() * 0.7));
-        System.out.println("              - Nash Equilibrium Reached: " + (Math.random() > 0.3 ? "✓ Yes" : "○ Approx"));
+        System.out.println("              - Nash Equilibrium Reached: " + (Math.random() > 0.3 ? "[OK] Yes" : "[O] Approx"));
         
-        System.out.println("            • α-Fairness Load Balancer:");
+        System.out.println("            - alpha-Fairness Load Balancer:");
         System.out.println("              - Fairness Policy: MIN_MAX");
         System.out.println("              - Cooperative Utility: " + String.format("%.2f", 2.1 + Math.random() * 0.8));
         System.out.println("              - Shapley Value Fair: " + String.format("%.3f", 0.85 + Math.random() * 0.1));
         
-        System.out.println("            • A2G Channel Model (Cooperative):");
+        System.out.println("            - A2G Channel Model (Cooperative):");
         System.out.println("              - Joint Optimization: Multi-BS coordination");
         System.out.println("              - Interference Mitigation: " + String.format("%.1f dB", 8.5 + Math.random() * 3));
         System.out.println("              - Spectral Efficiency: " + String.format("%.2f bps/Hz", 4.2 + Math.random() * 1.8));
         
-        System.out.println("            • AF Relay Model:");
+        System.out.println("            - AF Relay Model:");
         System.out.println("              - Cooperative Relaying: Joint beamforming");
         System.out.println("              - Relay Gain Factor: " + String.format("%.3f", 3.0 + Math.random() * 1.2));
         System.out.println("              - Cooperative Rate: " + String.format("%.2f Mbps", 60.0 + Math.random() * 40));
         
-        System.out.println("            • P-SCA Algorithm:");
+        System.out.println("            - P-SCA Algorithm:");
         System.out.println("              - Cooperative SCA: Joint optimization");
         System.out.println("              - Global Convergence: " + String.format("%.2f", 0.97 + Math.random() * 0.02));
         System.out.println("              - Social Welfare: " + String.format("%.3f", 2.2 + Math.random() * 0.6));
         
-        System.out.println("            • AGC-TLB Problem Formulation:");
+        System.out.println("            - AGC-TLB Problem Formulation:");
         System.out.println("              - Cooperative MINLP: Grand coalition");
         System.out.println("              - Joint Resource Allocation: Optimal solution");
         System.out.println("              - Coalition Stability: " + String.format("%.1f%%", 94.0 + Math.random() * 5));
     }
     
     private void printAuctionBasedResearchDetails() {
-        System.out.println("            • AF Relay Model (Auction Mechanism):");
+        System.out.println("            - AF Relay Model (Auction Mechanism):");
         System.out.println("              - Bidding Strategy: Second-price sealed bid");
         System.out.println("              - Winner Determination: VCG mechanism");
         System.out.println("              - Social Welfare: " + String.format("%.2f", 1.6 + Math.random() * 0.6));
         
-        System.out.println("            • A2G Channel Model (Dynamic):");
+        System.out.println("            - A2G Channel Model (Dynamic):");
         System.out.println("              - Channel State Information: Real-time");
         System.out.println("              - Adaptive Modulation: " + String.format("%.0f-QAM avg", 16 + Math.random() * 48));
         System.out.println("              - Link Adaptation Rate: " + String.format("%.1f Hz", 50 + Math.random() * 30));
         
-        System.out.println("            • P-SCA Algorithm (Market-based):");
+        System.out.println("            - P-SCA Algorithm (Market-based):");
         System.out.println("              - Price Update Rule: Gradient ascent");
         System.out.println("              - Market Equilibrium: " + String.format("%.1f%%", 88.0 + Math.random() * 10));
         System.out.println("              - Revenue Efficiency: " + String.format("%.2f", 0.92 + Math.random() * 0.06));
         
-        System.out.println("            • α-Fairness Load Balancer:");
+        System.out.println("            - alpha-Fairness Load Balancer:");
         System.out.println("              - Fairness Policy: AUCTION_FAIR");
         System.out.println("              - Truthful Mechanism: Incentive compatible");
         System.out.println("              - Individual Rationality: " + String.format("%.1f%%", 96.0 + Math.random() * 3));
         
-        System.out.println("            • Exact Potential Game:");
+        System.out.println("            - Exact Potential Game:");
         System.out.println("              - Auction Game: Sealed bid mechanism");
         System.out.println("              - Nash Bidding: Equilibrium strategies");
         System.out.println("              - Revenue Maximization: " + String.format("%.3f", 1.4 + Math.random() * 0.8));
         
-        System.out.println("            • AGC-TLB Problem Formulation:");
+        System.out.println("            - AGC-TLB Problem Formulation:");
         System.out.println("              - Market MINLP: Auction-based allocation");
         System.out.println("              - Winner Selection: Optimal combinatorial");
         System.out.println("              - Payment Calculation: VCG pricing");
@@ -1250,21 +1282,21 @@ public class DroneAssistedCommunicationSimulation {
             Map<AlgorithmType, SimulationResults> results) {
         
         System.out.println("\nALGORITHM COMPARISON:");
-        System.out.println("   +------------------+--------------+-------------+--------------+-------------+");
-        System.out.println("   | Algorithm        | Throughput   | Latency     | Energy       | QoS Viol.   |");
-        System.out.println("   |                  | (Mbps)       | (ms)        | (J)          | (%)         |");
-        System.out.println("   +------------------+--------------+-------------+--------------+-------------+");
+        System.out.println("   +------------------+--------------+-------------+--------------+--------------+");
+        System.out.println("   | Algorithm        | Throughput   | Latency     | Energy       | Satisfaction |");
+        System.out.println("   |                  | (Mbps)       | (ms)        | (J)          | (%)          |");
+        System.out.println("   +------------------+--------------+-------------+--------------+--------------+");
         
         for (AlgorithmType alg : AlgorithmType.values()) {
             SimulationResults result = results.get(alg);
-            System.out.printf("   | %-16s | %12.2f | %11.2f | %12.2f | %11.2f |%n",
+            System.out.printf("   | %-16s | %12.2f | %11.2f | %12.2f | %12.2f |%n",
                 alg.getDisplayName(),
                 result.getAverageThroughput() / 1e6,
                 result.getAverageLatency(),
                 result.getTotalEnergyConsumption(),
-                result.getQoSViolationRate() * 100);
+                result.getUserSatisfaction() * 100);
         }
-        System.out.println("   +------------------+--------------+-------------+--------------+-------------+");
+        System.out.println("   +------------------+--------------+-------------+--------------+--------------+");
         
         // Identify best performing algorithm for each metric
         identifyBestAlgorithms(results);
@@ -1286,15 +1318,15 @@ public class DroneAssistedCommunicationSimulation {
             .min(Comparator.comparing(e -> e.getValue().getTotalEnergyConsumption()))
             .map(Map.Entry::getKey).orElse(null);
             
-        AlgorithmType bestQoS = results.entrySet().stream()
-            .min(Comparator.comparing(e -> e.getValue().getQoSViolationRate()))
+        AlgorithmType bestSatisfaction = results.entrySet().stream()
+            .max(Comparator.comparing(e -> e.getValue().getUserSatisfaction()))
             .map(Map.Entry::getKey).orElse(null);
         
         System.out.println("\n   + Best Performance:");
         System.out.println("      + Highest Throughput: " + (bestThroughput != null ? bestThroughput.getDisplayName() : "N/A"));
         System.out.println("      + Lowest Latency: " + (bestLatency != null ? bestLatency.getDisplayName() : "N/A"));
         System.out.println("      + Energy Efficient: " + (bestEnergy != null ? bestEnergy.getDisplayName() : "N/A"));
-        System.out.println("      + Best QoS: " + (bestQoS != null ? bestQoS.getDisplayName() : "N/A"));
+        System.out.println("      + Best Satisfaction: " + (bestSatisfaction != null ? bestSatisfaction.getDisplayName() : "N/A"));
     }
     
     /**
@@ -1339,18 +1371,31 @@ public class DroneAssistedCommunicationSimulation {
         private final List<Double> energySamples = new ArrayList<>();
         private final List<Double> loadBalanceSamples = new ArrayList<>();
         private final List<Double> handoffSamples = new ArrayList<>();
-        private final List<Double> qosViolationSamples = new ArrayList<>();
         private final List<Double> satisfactionSamples = new ArrayList<>();
         
+        // NEW: Store final state for detailed data collection
+        private List<DroneBaseStation> finalDroneStations = new ArrayList<>();
+        private List<GroundBaseStation> finalGroundStations = new ArrayList<>();
+        private List<MobileUser> finalUsers = new ArrayList<>();
+        private Map<Object, Set<MobileUser>> finalAssignments = new HashMap<>();
+        
         public void recordTimeStep(double time, double throughput, double latency, double energy,
-                double loadBalance, double handoff, double qosViolation, double satisfaction) {
+                double loadBalance, double handoff, double satisfaction) {
             throughputSamples.add(throughput);
             latencySamples.add(latency);
             energySamples.add(energy);
             loadBalanceSamples.add(loadBalance);
             handoffSamples.add(handoff);
-            qosViolationSamples.add(qosViolation);
             satisfactionSamples.add(satisfaction);
+        }
+        
+        // NEW: Store final simulation state
+        public void setFinalState(List<DroneBaseStation> drones, List<GroundBaseStation> ground,
+                List<MobileUser> users, Map<Object, Set<MobileUser>> assignments) {
+            this.finalDroneStations = drones;
+            this.finalGroundStations = ground;
+            this.finalUsers = users;
+            this.finalAssignments = assignments;
         }
         
         public void finalizeResults(double simulationTime) {
@@ -1373,12 +1418,14 @@ public class DroneAssistedCommunicationSimulation {
             return loadBalanceSamples.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
         }
         
-        public double getQoSViolationRate() {
-            return qosViolationSamples.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-        }
-        
         public double getUserSatisfaction() {
             return satisfactionSamples.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
         }
+        
+        // NEW: Getters for final state
+        public List<DroneBaseStation> getFinalDroneStations() { return finalDroneStations; }
+        public List<GroundBaseStation> getFinalGroundStations() { return finalGroundStations; }
+        public List<MobileUser> getFinalUsers() { return finalUsers; }
+        public Map<Object, Set<MobileUser>> getFinalAssignments() { return finalAssignments; }
     }
 }

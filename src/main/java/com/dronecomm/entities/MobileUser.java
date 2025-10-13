@@ -347,11 +347,17 @@ public class MobileUser {
     }
 
     public double getSatisfactionLevel() {
-        // Calculate user satisfaction based on QoS metrics
+        // Calculate user satisfaction based on actual QoS metrics (deterministic)
         if (isQoSViolated()) {
-            return 0.3 + random.nextDouble() * 0.4; // 30-70% satisfaction if QoS violated
+            // Calculate how badly QoS is violated
+            double throughputRatio = Math.min(1.0, receivedThroughput / minRequiredThroughput);
+            double latencyRatio = Math.max(0.0, 1.0 - (experiencedLatency / maxAcceptableLatency));
+            return 0.3 + (throughputRatio * 0.2) + (latencyRatio * 0.2); // 30-70% based on actual metrics
         } else {
-            return 0.7 + random.nextDouble() * 0.3; // 70-100% satisfaction if QoS met
+            // Calculate how well QoS requirements are met
+            double throughputRatio = Math.min(1.0, receivedThroughput / (minRequiredThroughput * 1.5));
+            double latencyRatio = Math.max(0.0, 1.0 - (experiencedLatency / maxAcceptableLatency));
+            return 0.7 + (throughputRatio * 0.15) + (latencyRatio * 0.15); // 70-100% based on actual metrics
         }
     }
     

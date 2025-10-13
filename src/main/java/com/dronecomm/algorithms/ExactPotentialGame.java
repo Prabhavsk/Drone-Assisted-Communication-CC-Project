@@ -12,10 +12,10 @@ import java.util.*;
  * Exact Potential Game with Gibbs Sampling for DBS Deployment
  * 
  * This class implements the exact potential game formulation from the research paper:
- * - 3D discrete grid deployment: X × Y × H with granularities δx, δy, δh
- * - State transfer probability: Pr(a_j^t|a_j^{t-1}) = exp(-ψC_j)/Σexp(-ψC_j)
+ * - 3D discrete grid deployment: X * Y * H with granularities deltax, deltay, deltah
+ * - State transfer probability: Pr(a_j^t|a_j^{t-1}) = exp(-C_j)/Sumexp(-C_j)
  * - Constrained strategy profiles with neighboring locations
- * - Boltzmann parameter ψ for exploration/exploitation tradeoff
+ * - Boltzmann parameter  for exploration/exploitation tradeoff
  * - Convergence to Nash Equilibrium through potential function minimization
  */
 public class ExactPotentialGame {
@@ -26,8 +26,8 @@ public class ExactPotentialGame {
     private static final double DELTA_H = 20.0;    // Grid granularity in altitude (meters)
     
     // Game parameters
-    private static final double INITIAL_PSI = 1.0;  // Initial Boltzmann parameter ψ
-    private static final double PSI_INCREMENT = 0.1; // ψ increment per iteration
+    private static final double INITIAL_PSI = 1.0;  // Initial Boltzmann parameter 
+    private static final double PSI_INCREMENT = 0.1; //  increment per iteration
     private static final int MAX_ITERATIONS = 1000;  // Maximum game iterations
     private static final double CONVERGENCE_TOL = 1e-6; // Convergence tolerance
     
@@ -55,7 +55,7 @@ public class ExactPotentialGame {
      */
     public static class GameState {
         public final Map<DroneBaseStation, Position3D> positions;
-        public final double potentialValue;      // Potential function Φ
+        public final double potentialValue;      // Potential function 
         public final Map<DroneBaseStation, Double> individualCosts; // C_j for each DBS
         public final boolean isNashEquilibrium;
         
@@ -227,7 +227,7 @@ public class ExactPotentialGame {
         currentPositions.put(dbs, currentPos);
         
         // Calculate state transfer probabilities using Boltzmann distribution
-        // Pr(a_j^t|a_j^{t-1}) = exp(-ψC_j) / Σexp(-ψC_j)
+        // Pr(a_j^t|a_j^{t-1}) = exp(-C_j) / Sumexp(-C_j)
         List<Double> probabilities = new ArrayList<>();
         double sumExp = 0.0;
         
@@ -276,7 +276,7 @@ public class ExactPotentialGame {
     
     /**
      * Calculate individual cost function C_j for a DBS
-     * This corresponds to the α-fairness objective component for DBS j
+     * This corresponds to the alpha-fairness objective component for DBS j
      */
     private double calculateIndividualCost(
             DroneBaseStation dbs,
@@ -303,7 +303,7 @@ public class ExactPotentialGame {
             Set<MobileUser> assignedUsers = assignments.getOrDefault(dbs, new HashSet<>());
             double load = AlphaFairnessLoadBalancer.calculateTrafficLoad(dbs, assignedUsers, meanPacketSize, false);
             
-            // Individual cost based on α-fairness contribution
+            // Individual cost based on alpha-fairness contribution
             if (load >= 1.0) {
                 return Double.POSITIVE_INFINITY; // Infeasible
             }
@@ -314,7 +314,7 @@ public class ExactPotentialGame {
             } else if (Math.abs(alpha - 1.0) < 1e-9) {
                 return -Math.log(1.0 - load); // Proportional-fair cost
             } else {
-                return Math.pow(1.0 - load, 1.0 - alpha) / (alpha - 1.0); // General α-fairness cost
+                return Math.pow(1.0 - load, 1.0 - alpha) / (alpha - 1.0); // General alpha-fairness cost
             }
             
         } finally {
@@ -364,7 +364,7 @@ public class ExactPotentialGame {
             costs.put(dbs, cost);
         }
         
-        // Potential function: Φ = Σ C_j (sum of individual costs)
+        // Potential function:  = Sum C_j (sum of individual costs)
         double potential = costs.values().stream().mapToDouble(Double::doubleValue).sum();
         
         // Check if current state is Nash Equilibrium (simplified check)

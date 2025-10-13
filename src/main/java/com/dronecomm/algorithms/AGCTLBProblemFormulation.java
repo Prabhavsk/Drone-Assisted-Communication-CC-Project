@@ -15,16 +15,16 @@ import java.util.*;
  * problem formulation from the research paper:
  * 
  * Problem (10):
- * min φα(ρ) subject to:
- * - Constraint (10b): Σ xij = 1, xij ∈ {0,1}, ∀i ∈ I (each UE to one BS)
- * - Constraint (10c): Σ xij ≤ Nj, ∀j ∈ J^s (capacity constraints)
- * - Constraint (10d): 0 ≤ ρj ≤ ρmax, ∀j ∈ J^s (load thresholds)
- * - Constraint (10e): qj ∈ F, ∀j ∈ J (deployment region)
+ * min phialpha(rho) subject to:
+ * - Constraint (10b): Sum xij = 1, xij in {0,1}, foralli in I (each UE to one BS)
+ * - Constraint (10c): Sum xij <= Nj, forallj in J^s (capacity constraints)
+ * - Constraint (10d): 0 <= rhoj <= rhomax, forallj in J^s (load thresholds)
+ * - Constraint (10e): qj in F, forallj in J (deployment region)
  * 
  * Where:
- * - Q := {qj, j ∈ J} (DBS positions)
- * - X := {xij, i ∈ I, j ∈ J^s} (user associations)
- * - F = [xmin, xmax] × [ymin, ymax] × [hmin, hmax] (feasible region)
+ * - Q := {qj, j in J} (DBS positions)
+ * - X := {xij, i in I, j in J^s} (user associations)
+ * - F = [xmin, xmax] * [ymin, ymax] * [hmin, hmax] (feasible region)
  */
 public class AGCTLBProblemFormulation {
     
@@ -36,14 +36,14 @@ public class AGCTLBProblemFormulation {
         public final double xMin, xMax, yMin, yMax, hMin, hMax;
         
         // Load constraints
-        public final double maxLoad;           // ρmax threshold
+        public final double maxLoad;           // rhomax threshold
         
         // Capacity constraints
         public final Map<Object, Integer> maxUserCapacities; // Nj for each BS
         
         // Network parameters
-        public final double meanPacketSize;    // μ (bits)
-        public final FairnessPolicy policy;    // α-fairness policy
+        public final double meanPacketSize;    // mu (bits)
+        public final FairnessPolicy policy;    // alpha-fairness policy
         
         public ProblemConstraints(double xMin, double xMax, double yMin, double yMax,
                                 double hMin, double hMax, double maxLoad,
@@ -68,8 +68,8 @@ public class AGCTLBProblemFormulation {
     public static class AGCTLBSolution {
         public final Map<DroneBaseStation, Position3D> dronePositions;     // Q (DBS positions)
         public final Map<MobileUser, Object> userAssignments;              // X (user associations)
-        public final Map<Object, Double> baseStationLoads;                 // ρ (load distribution)
-        public final double objectiveValue;                                // φα(ρ)
+        public final Map<Object, Double> baseStationLoads;                 // rho (load distribution)
+        public final double objectiveValue;                                // phialpha(rho)
         public final boolean feasible;                                     // Constraint satisfaction
         public final String infeasibilityReason;                          // If infeasible
         public final ConstraintViolations violations;                      // Constraint violations
@@ -334,7 +334,7 @@ public class AGCTLBProblemFormulation {
     }
     
     /**
-     * Validate constraint (10b): Σ xij = 1, xij ∈ {0,1}
+     * Validate constraint (10b): Sum xij = 1, xij in {0,1}
      */
     private static void validateAssignmentConstraints(
             Map<MobileUser, Object> assignments, ConstraintViolations violations) {
@@ -348,7 +348,7 @@ public class AGCTLBProblemFormulation {
     }
     
     /**
-     * Validate constraint (10c): Σ xij ≤ Nj
+     * Validate constraint (10c): Sum xij <= Nj
      */
     private static void validateCapacityConstraints(
             Map<MobileUser, Object> assignments, List<Object> baseStations,
@@ -375,7 +375,7 @@ public class AGCTLBProblemFormulation {
     }
     
     /**
-     * Validate constraint (10d): 0 ≤ ρj ≤ ρmax
+     * Validate constraint (10d): 0 <= rhoj <= rhomax
      */
     private static void validateLoadConstraints(
             Map<Object, Double> loads, ProblemConstraints constraints, ConstraintViolations violations) {
@@ -392,7 +392,7 @@ public class AGCTLBProblemFormulation {
     }
     
     /**
-     * Validate constraint (10e): qj ∈ F
+     * Validate constraint (10e): qj in F
      */
     private static void validateDeploymentConstraints(
             Map<DroneBaseStation, Position3D> positions, ProblemConstraints constraints, 

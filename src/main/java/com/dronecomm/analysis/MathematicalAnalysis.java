@@ -21,7 +21,7 @@ public class MathematicalAnalysis {
             switch (algorithmType.toLowerCase()) {
                 case "nash_equilibrium":
                     return new ComplexityBounds(
-                        "O(n²m)", // Time complexity
+                        "O(n^2m)", // Time complexity
                         "O(nm)",  // Space complexity
                         numUsers * numUsers * numStations, // Actual operations estimate
                         "Polynomial - tractable for moderate problem sizes"
@@ -29,7 +29,7 @@ public class MathematicalAnalysis {
                     
                 case "stackelberg_game":
                     return new ComplexityBounds(
-                        "O(n³m)",
+                        "O(nm)",
                         "O(nm)",
                         numUsers * numUsers * numUsers * numStations,
                         "Polynomial - leader-follower hierarchy adds complexity"
@@ -91,7 +91,7 @@ public class MathematicalAnalysis {
                     
                 case "cooperative_game":
                     int cooperativeMessages = numStations * (numStations - 1) / 2; // All-to-all
-                    return new CommunicationComplexity(cooperativeMessages, "O(m²)",
+                    return new CommunicationComplexity(cooperativeMessages, "O(m^2)",
                                                      "Coalition formation requires full coordination");
                     
                 case "auction_based":

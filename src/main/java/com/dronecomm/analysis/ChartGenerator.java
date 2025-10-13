@@ -68,7 +68,7 @@ public class ChartGenerator {
         generateThroughputComparisonChart(allResults);
         generateLatencyComparisonChart(allResults);
         generateEnergyConsumptionChart(allResults);
-        generateQoSViolationChart(allResults);
+        // QoS Violation chart removed - not in research paper
         generateUserSatisfactionChart(allResults);
         generateScalabilityChart(allResults);
         generateAlgorithmPerformanceRadarChart(allResults);
@@ -155,32 +155,8 @@ public class ChartGenerator {
         saveChart(chart, "energy_consumption");
     }
     
-    private void generateQoSViolationChart(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        
-        for (ScenarioType scenario : allResults.keySet()) {
-            for (Integer userCount : allResults.get(scenario).keySet()) {
-                String category = getReadableScenarioLabel(scenario, userCount);
-                
-                for (AlgorithmType algorithm : allResults.get(scenario).get(userCount).keySet()) {
-                    ResultsExporter.SimulationResult result = allResults.get(scenario).get(userCount).get(algorithm);
-                    dataset.addValue(result.getQoSViolationRate() * 100, algorithm.getDisplayName(), category);
-                }
-            }
-        }
-        
-        JFreeChart chart = ChartFactory.createBarChart(
-            "QoS Violation Rate Comparison Across Scenarios",
-            "Scenario and User Count",
-            "QoS Violation Rate (%)",
-            dataset,
-            PlotOrientation.VERTICAL,
-            true, true, false
-        );
-        
-        customizeChart(chart, Color.ORANGE);
-        saveChart(chart, "qos_violation");
-    }
+    
+    // QoS Violation chart method removed - not in research paper
     
     private void generateUserSatisfactionChart(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -246,7 +222,7 @@ public class ChartGenerator {
         Map<AlgorithmType, Double> avgThroughput = new java.util.HashMap<>();
         Map<AlgorithmType, Double> avgLatency = new java.util.HashMap<>();
         Map<AlgorithmType, Double> avgEnergy = new java.util.HashMap<>();
-        Map<AlgorithmType, Double> avgQoS = new java.util.HashMap<>();
+        Map<AlgorithmType, Double> avgSatisfaction = new java.util.HashMap<>();
         Map<AlgorithmType, Integer> counts = new java.util.HashMap<>();
         
         for (ScenarioType scenario : allResults.keySet()) {
@@ -257,7 +233,7 @@ public class ChartGenerator {
                     avgThroughput.put(algorithm, avgThroughput.getOrDefault(algorithm, 0.0) + result.getAverageThroughput());
                     avgLatency.put(algorithm, avgLatency.getOrDefault(algorithm, 0.0) + result.getAverageLatency());
                     avgEnergy.put(algorithm, avgEnergy.getOrDefault(algorithm, 0.0) + result.getTotalEnergyConsumption());
-                    avgQoS.put(algorithm, avgQoS.getOrDefault(algorithm, 0.0) + result.getQoSViolationRate());
+                    avgSatisfaction.put(algorithm, avgSatisfaction.getOrDefault(algorithm, 0.0) + result.getUserSatisfaction());
                     counts.put(algorithm, counts.getOrDefault(algorithm, 0) + 1);
                 }
             }
@@ -269,12 +245,12 @@ public class ChartGenerator {
             double throughputScore = (avgThroughput.get(algorithm) / count) / 1e6 * 2; // Scale to 0-100
             double latencyScore = Math.max(0, 100 - (avgLatency.get(algorithm) / count) * 10); // Lower is better
             double energyScore = Math.max(0, 100 - (avgEnergy.get(algorithm) / count) / 50000); // Lower is better
-            double qosScore = Math.max(0, 100 - (avgQoS.get(algorithm) / count) * 100); // Lower is better
+            double satisfactionScore = (avgSatisfaction.get(algorithm) / count); // Already percentage
             
             dataset.addValue(Math.min(100, throughputScore), algorithm.getDisplayName(), "Throughput");
             dataset.addValue(Math.min(100, latencyScore), algorithm.getDisplayName(), "Latency");
             dataset.addValue(Math.min(100, energyScore), algorithm.getDisplayName(), "Energy Efficiency");
-            dataset.addValue(Math.min(100, qosScore), algorithm.getDisplayName(), "QoS");
+            dataset.addValue(Math.min(100, satisfactionScore), algorithm.getDisplayName(), "Satisfaction");
         }
         
         JFreeChart chart = ChartFactory.createBarChart(
@@ -292,19 +268,23 @@ public class ChartGenerator {
     
     private void customizeChart(JFreeChart chart, Color themeColor) {
         chart.setBackgroundPaint(Color.WHITE);
-        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 18));
+        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 20));
+        chart.getTitle().setPaint(Color.BLACK);
         
         if (chart.getCategoryPlot() != null) {
             CategoryPlot plot = chart.getCategoryPlot();
-            plot.setBackgroundPaint(Color.LIGHT_GRAY);
-            plot.setDomainGridlinePaint(Color.WHITE);
-            plot.setRangeGridlinePaint(Color.WHITE);
+            plot.setBackgroundPaint(Color.WHITE);
+            plot.setDomainGridlinePaint(new Color(220, 220, 220));
+            plot.setRangeGridlinePaint(new Color(220, 220, 220));
+            plot.setOutlineVisible(true);
+            plot.setOutlinePaint(Color.BLACK);
+            plot.setOutlineStroke(new BasicStroke(1.0f));
             
             // Improve axis labeling
-            plot.getDomainAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
-            plot.getRangeAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
-            plot.getDomainAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 12));
-            plot.getRangeAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 12));
+            plot.getDomainAxis().setLabelFont(new Font("Arial", Font.BOLD, 16));
+            plot.getRangeAxis().setLabelFont(new Font("Arial", Font.BOLD, 16));
+            plot.getDomainAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 13));
+            plot.getRangeAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 13));
             
             // Rotate x-axis labels for better readability
             plot.getDomainAxis().setCategoryLabelPositions(
@@ -313,7 +293,7 @@ public class ChartGenerator {
             if (plot.getRenderer() instanceof BarRenderer) {
                 BarRenderer renderer = (BarRenderer) plot.getRenderer();
                 
-                // Set distinct colors for each algorithm
+                // Set distinct colors for each algorithm - matching research paper style
                 Color[] algorithmColors = {
                     new Color(31, 119, 180),    // Nash Equilibrium - Blue
                     new Color(255, 127, 14),    // Stackelberg Game - Orange  
@@ -332,8 +312,18 @@ public class ChartGenerator {
                     renderer.setSeriesPaint(i, algorithmColors[i]);
                 }
                 
-                // Improve bar spacing and width
+                // Enhanced bar styling
+                renderer.setBarPainter(new org.jfree.chart.renderer.category.StandardBarPainter());
+                renderer.setShadowVisible(false);
+                renderer.setDrawBarOutline(true);
                 renderer.setItemMargin(0.1);
+                renderer.setMaximumBarWidth(0.08);
+            }
+            
+            // Legend styling
+            if (chart.getLegend() != null) {
+                chart.getLegend().setItemFont(new Font("Arial", Font.PLAIN, 13));
+                chart.getLegend().setFrame(new org.jfree.chart.block.BlockBorder(Color.BLACK));
             }
         }
     }

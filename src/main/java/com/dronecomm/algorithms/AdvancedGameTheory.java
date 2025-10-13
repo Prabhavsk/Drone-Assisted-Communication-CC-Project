@@ -54,7 +54,7 @@ public class AdvancedGameTheory {
     
     /**
      * Mathematical utility function for drone base stations
-     * U_d(s_d, s_{-d}) = α·R_d + β·E_d + γ·F_d
+     * U_d(s_d, s_{-d}) = alphaR_d + betaE_d + gammaF_d
      * Where:
      * - R_d: Throughput utility
      * - E_d: Energy efficiency utility  
@@ -69,7 +69,7 @@ public class AdvancedGameTheory {
             return 0.0;
         }
         
-        // Throughput utility: R_d = Σ log(1 + SINR_i)
+        // Throughput utility: R_d = Sum log(1 + SINR_i)
         double throughputUtility = calculateThroughputUtility(drone, assignedUsers, globalAssignments);
         
         // Energy efficiency utility: E_d = (P_total - P_consumed) / P_total
@@ -83,7 +83,7 @@ public class AdvancedGameTheory {
     
     /**
      * Calculate throughput utility using Shannon capacity formula
-     * R_d = Σ B * log₂(1 + SINR_i) for all users i served by drone d
+     * R_d = Sum B * log(1 + SINR_i) for all users i served by drone d
      */
     private double calculateThroughputUtility(DroneBaseStation drone, 
                                             Set<MobileUser> assignedUsers,
@@ -94,7 +94,7 @@ public class AdvancedGameTheory {
             // Calculate SINR for this user
             double sinr = calculateSINR(user, drone, globalAssignments);
             
-            // Shannon capacity: C = B * log₂(1 + SINR)
+            // Shannon capacity: C = B * log(1 + SINR)
             double bandwidth = drone.getBandwidth() / assignedUsers.size(); // Equal bandwidth allocation
             double capacity = bandwidth * Math.log(1 + sinr) / Math.log(2);
             
@@ -148,7 +148,7 @@ public class AdvancedGameTheory {
     
     /**
      * Path loss model: Friis transmission equation with additional factors
-     * P_r = P_t * G_t * G_r * (λ / (4π * d))² * L
+     * P_r = P_t * G_t * G_r * (lambda / (4pi * d))^2 * L
      */
     private double calculateReceivedPower(double transmitPower, double distance) {
         if (distance <= 0) return transmitPower;
@@ -187,7 +187,7 @@ public class AdvancedGameTheory {
     
     /**
      * Fairness utility using Jain's Fairness Index
-     * J = (Σ x_i)² / (n * Σ x_i²)
+     * J = (Sum x_i)^2 / (n * Sum x_i^2)
      * Where x_i is the throughput allocated to user i
      */
     private double calculateFairnessUtility(DroneBaseStation drone, Set<MobileUser> assignedUsers) {
@@ -349,7 +349,7 @@ public class AdvancedGameTheory {
         for (Object player : allPlayers) {
             double shapleyValue = 0.0;
             
-            // Calculate Shapley value: Σ |S|!(n-|S|-1)!/n! * [v(S∪{i}) - v(S)]
+            // Calculate Shapley value: Sum |S|!(n-|S|-1)!/n! * [v(SU{i}) - v(S)]
             for (Set<Object> coalition : generateCoalitions(allPlayers, player)) {
                 int coalitionSize = coalition.size();
                 int totalPlayers = allPlayers.size();

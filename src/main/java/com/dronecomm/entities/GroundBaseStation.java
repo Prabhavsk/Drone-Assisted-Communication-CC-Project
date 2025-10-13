@@ -57,7 +57,7 @@ public class GroundBaseStation {
     
     public GroundBaseStation(double mips, int ram, long bandwidth, long storage) {
         this("Ground-" + nextId, mips, ram, bandwidth, storage, 
-             new Position3D(0, 0, 0), 100.0);
+             new Position3D(0, 0, 0), 200.0); // Increased coverage from 100 to 200 meters
     }
     
     // User management

@@ -325,7 +325,7 @@ public class EnhancedChannelModels {
         public static double generateTrafficDemand(int hour, String userType, double baseDemand) {
             double timeFactor = calculateTimeBasedFactor(hour);
             double typeFactor = calculateUserTypeFactor(userType);
-            double randomVariation = 0.8 + 0.4 * random.nextDouble(); // ±20% variation
+            double randomVariation = 0.8 + 0.4 * random.nextDouble(); // +/-20% variation
             
             return baseDemand * timeFactor * typeFactor * randomVariation;
         }

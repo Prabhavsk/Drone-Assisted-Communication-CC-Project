@@ -23,10 +23,10 @@ KEY FINDINGS:
    - Nash Equilibrium optimizes energy usage effectively
    - Distance-based positioning impacts energy consumption
 
-4. QUALITY OF SERVICE:
-   - QoS violations increase with network congestion
-   - Ground station integration improves reliability
-   - User satisfaction correlates with load balancing efficiency
+4. USER SATISFACTION:
+   - User satisfaction decreases with network congestion
+   - Ground station integration improves service quality
+   - Satisfaction correlates with load balancing efficiency
 
 CONCLUSIONS:
 ---------------

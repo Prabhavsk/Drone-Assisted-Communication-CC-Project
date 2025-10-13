@@ -13,7 +13,7 @@ public class IntegratedResearchSimulation {
     private static final int[] USER_COUNTS = {50, 100, 150, 200};
     
     public static void main(String[] args) {
-        System.out.println("🔬 INTEGRATED RESEARCH ALGORITHM SIMULATION");
+        System.out.println("[Lab] INTEGRATED RESEARCH ALGORITHM SIMULATION");
         System.out.println("=" .repeat(80));
         System.out.println("Using REAL research algorithms in main simulation flow");
         System.out.println();
@@ -24,7 +24,7 @@ public class IntegratedResearchSimulation {
     
     public void runIntegratedSimulation() {
         for (ScenarioType scenario : ScenarioType.values()) {
-            System.out.println("📊 TESTING SCENARIO: " + scenario.getDescription());
+            System.out.println("[Chart] TESTING SCENARIO: " + scenario.getDescription());
             System.out.println("=" .repeat(70));
             
             for (int userCount : USER_COUNTS) {
@@ -113,7 +113,7 @@ public class IntegratedResearchSimulation {
     private Map<Object, Set<MobileUser>> executeNashWithResearchAlgorithms(List<MobileUser> users,
                                                                           List<DroneBaseStation> drones,
                                                                           List<GroundBaseStation> groundStations) {
-        System.out.println("    Progress: [" + "█".repeat(20) + "] Complete");
+        System.out.println("    Progress: [" + "#".repeat(20) + "] Complete");
         displayAlgorithmSpecificMetrics("Nash Equilibrium", users, drones, groundStations);
         System.out.println("      *** Results:");
         
@@ -153,7 +153,7 @@ public class IntegratedResearchSimulation {
     private Map<Object, Set<MobileUser>> executeCooperativeWithResearchAlgorithms(List<MobileUser> users,
                                                                                  List<DroneBaseStation> drones,
                                                                                  List<GroundBaseStation> groundStations) {
-        System.out.println("    Progress: [" + "█".repeat(20) + "] Complete");
+        System.out.println("    Progress: [" + "#".repeat(20) + "] Complete");
         displayAlgorithmSpecificMetrics("Cooperative Game", users, drones, groundStations);
         System.out.println("      *** Results:");
         
@@ -174,7 +174,7 @@ public class IntegratedResearchSimulation {
     private Map<Object, Set<MobileUser>> executeAuctionWithResearchAlgorithms(List<MobileUser> users,
                                                                              List<DroneBaseStation> drones,
                                                                              List<GroundBaseStation> groundStations) {
-        System.out.println("    Progress: [" + "█".repeat(20) + "] Complete");
+        System.out.println("    Progress: [" + "#".repeat(20) + "] Complete");
         displayAlgorithmSpecificMetrics("Auction-based", users, drones, groundStations);
         System.out.println("      *** Results:");
         
@@ -345,27 +345,27 @@ public class IntegratedResearchSimulation {
         try {
             // A2G Channel Model
             A2GChannelModel.A2GChannelResult channelResult = A2GChannelModel.calculateA2GChannel(sampleUser, sampleDBS);
-            System.out.print("      🧮 A2G Channel: ");
+            System.out.print("      [Calc] A2G Channel: ");
             System.out.printf("Path Loss: %.2f dB | ", channelResult.pathLoss);
             System.out.printf("LoS Prob: %.3f | ", channelResult.losProb);
             
             // AF Relay Model
             AFRelayModel.AFRelayResult relayResult = AFRelayModel.calculateAFRelayRate(
                 sampleUser, sampleDBS, sampleGBS, 1.0, 5.0, 10e6);
-            System.out.print("📡 AF Relay: ");
+            System.out.print("[Signal] AF Relay: ");
             System.out.printf("Rate: %.2f Mbps | ", relayResult.totalRate / 1e6);
             
-            // α-Fairness
+            // alpha-Fairness
             Map<Object, Double> loads = new HashMap<>();
             loads.put(sampleDBS, 0.3);
             loads.put(sampleGBS, 0.5);
             double fairness = AlphaFairnessLoadBalancer.calculateAlphaFairnessObjective(
                 loads, AlphaFairnessLoadBalancer.FairnessPolicy.PROPORTIONAL_FAIR);
-            System.out.print("⚖️ α-Fairness: ");
+            System.out.print("[Scale] alpha-Fairness: ");
             System.out.printf("Objective: %.3f | ", fairness);
             
             // P-SCA (simplified test)
-            System.out.print("🔄 P-SCA: ");
+            System.out.print("[Cycle] P-SCA: ");
             try {
                 List<MobileUser> testUsers = Arrays.asList(sampleUser);
                 List<DroneBaseStation> testDrones = Arrays.asList(sampleDBS);
@@ -374,13 +374,13 @@ public class IntegratedResearchSimulation {
                 PSCAAlgorithm.PSCAResult pscaResult = PSCAAlgorithm.solveUserAssociation(
                     testDrones, testGBS, testUsers,
                     AlphaFairnessLoadBalancer.FairnessPolicy.PROPORTIONAL_FAIR, 1000.0);
-                System.out.printf("Converged: %s | ", pscaResult.converged ? "✓" : "✗");
+                System.out.printf("Converged: %s | ", pscaResult.converged ? "[OK]" : "[X]");
             } catch (Exception e) {
                 System.out.print("Active | ");
             }
             
             // Potential Game
-            System.out.print("🎯 Potential Game: ");
+            System.out.print("[Target] Potential Game: ");
             try {
                 new ExactPotentialGame(0, 5000, 0, 5000, 50, 300);
                 System.out.print("Active | ");
@@ -389,7 +389,7 @@ public class IntegratedResearchSimulation {
             }
             
             // AGC-TLB
-            System.out.print("🏗️ AGC-TLB: ");
+            System.out.print("[Build] AGC-TLB: ");
             try {
                 Map<Object, Integer> simpleCapacities = new HashMap<>();
                 simpleCapacities.put(sampleDBS, 100);
@@ -401,7 +401,7 @@ public class IntegratedResearchSimulation {
                         simpleCapacities, 1000, 
                         AlphaFairnessLoadBalancer.FairnessPolicy.PROPORTIONAL_FAIR
                     );
-                System.out.print("Formulated ✓");
+                System.out.print("Formulated [OK]");
             } catch (Exception e) {
                 System.out.print("Ready");
             }
@@ -409,26 +409,26 @@ public class IntegratedResearchSimulation {
             System.out.println();
             
         } catch (Exception e) {
-            System.out.println("      🔬 Research Algorithms: Active and Running");
+            System.out.println("      [Lab] Research Algorithms: Active and Running");
         }
     }
     
     private void compareAlgorithms(ScenarioType scenario, int userCount) {
-        System.out.println("\n🏆 COMPARISON TABLE:");
-        System.out.println("   ┌──────────────────┬──────────────┬─────────────┬──────────────┬─────────────┐");
-        System.out.println("   │ Algorithm        │ Throughput   │ Latency     │ Energy       │ QoS Viol.   │");
-        System.out.println("   │                  │ (Mbps)       │ (ms)        │ (J)          │ (%)         │");
-        System.out.println("   ├──────────────────┼──────────────┼─────────────┼──────────────┼─────────────┤");
+        System.out.println("\n COMPARISON TABLE:");
+        System.out.println("   ");
+        System.out.println("    Algorithm         Throughput    Latency      Energy        QoS Viol.   ");
+        System.out.println("                      (Mbps)        (ms)         (J)           (%)         ");
+        System.out.println("   ");
         
         for (AlgorithmType algorithm : AlgorithmType.values()) {
             SimulationResults results = runResearchAlgorithmSimulation(scenario, userCount, algorithm);
-            System.out.printf("   │ %-16s │ %12.2f │ %11.2f │ %12.2f │ %11.2f │%n",
+            System.out.printf("    %-16s  %12.2f  %11.2f  %12.2f  %11.2f %n",
                 algorithm.getDisplayName(), results.getAverageThroughput(), 
                 results.getAverageLatency(), results.getTotalEnergyConsumption(), 
                 results.getQosViolationRate());
         }
         
-        System.out.println("   └──────────────────┴──────────────┴─────────────┴──────────────┴─────────────┘");
+        System.out.println("   ");
     }
     
     private List<MobileUser> generateUsers(int count, ScenarioType scenario) {
@@ -526,7 +526,7 @@ public class IntegratedResearchSimulation {
             double pathLossVariation = 0;
             double relayRateVariation = 0;
             double fairnessVariation = 0;
-            String pscaStatus = "✓";
+            String pscaStatus = "[OK]";
             
             switch (algorithmName) {
                 case "Nash Equilibrium":
@@ -543,7 +543,7 @@ public class IntegratedResearchSimulation {
                     pathLossVariation = 8.0; // Coordination overhead
                     relayRateVariation = -12.1; // Cooperative negotiation cost
                     fairnessVariation = 0.05;
-                    pscaStatus = "⚠"; // Slower convergence
+                    pscaStatus = ""; // Slower convergence
                     break;
                 case "Auction-based":
                     pathLossVariation = 1.0; // Market efficiency
@@ -555,7 +555,7 @@ public class IntegratedResearchSimulation {
             // A2G Channel Model with algorithm variation
             A2GChannelModel.A2GChannelResult channelResult = A2GChannelModel.calculateA2GChannel(sampleUser, sampleDBS);
             double adjustedPathLoss = channelResult.pathLoss + pathLossVariation;
-            System.out.print("      🧮 A2G Channel: ");
+            System.out.print("      [Calc] A2G Channel: ");
             System.out.printf("Path Loss: %.1f dB | ", adjustedPathLoss);
             System.out.printf("LoS Prob: %.3f | ", channelResult.losProb);
             
@@ -563,35 +563,35 @@ public class IntegratedResearchSimulation {
             AFRelayModel.AFRelayResult relayResult = AFRelayModel.calculateAFRelayRate(
                 sampleUser, sampleDBS, sampleGBS, 1.0, 5.0, 10e6);
             double adjustedRelayRate = (relayResult.totalRate / 1e6) + relayRateVariation;
-            System.out.print("📡 AF Relay: ");
+            System.out.print("[Signal] AF Relay: ");
             System.out.printf("Rate: %.1f Mbps | ", adjustedRelayRate);
             
-            // α-Fairness with algorithm variation
+            // alpha-Fairness with algorithm variation
             Map<Object, Double> loads = new HashMap<>();
             loads.put(sampleDBS, 0.3);
             loads.put(sampleGBS, 0.5);
             double fairness = AlphaFairnessLoadBalancer.calculateAlphaFairnessObjective(
                 loads, AlphaFairnessLoadBalancer.FairnessPolicy.PROPORTIONAL_FAIR);
             double adjustedFairness = fairness + fairnessVariation;
-            System.out.print("⚖️ α-Fairness: ");
+            System.out.print("[Scale] alpha-Fairness: ");
             System.out.printf("Obj: %.3f | ", adjustedFairness);
             
             // P-SCA status
-            System.out.print("🔄 P-SCA: ");
+            System.out.print("[Cycle] P-SCA: ");
             System.out.printf("Conv: %s | ", pscaStatus);
             
             // Potential Game
-            System.out.print("🎯 Potential Game: ");
+            System.out.print("[Target] Potential Game: ");
             System.out.print("Active | ");
             
             // AGC-TLB
-            System.out.print("🏗️ AGC-TLB: ");
+            System.out.print("[Build] AGC-TLB: ");
             System.out.print("Ready");
             
             System.out.println();
             
         } catch (Exception e) {
-            System.out.println("      🔬 Research Algorithms: " + algorithmName + " - Active");
+            System.out.println("      [Lab] Research Algorithms: " + algorithmName + " - Active");
         }
     }
 }

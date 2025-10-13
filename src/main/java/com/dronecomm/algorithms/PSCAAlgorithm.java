@@ -13,30 +13,30 @@ import java.util.*;
  * This class implements the P-SCA algorithm from the research paper for solving
  * the user association subproblem with binary variable relaxation:
  * 
- * - Binary variable relaxation: xij → x̃ij ∈ [0,1]
- * - Penalty term: (1/λ) * Σ(x̃ij - x̃ij²) 
+ * - Binary variable relaxation: xij  xij in [0,1]
+ * - Penalty term: (1/lambda) * Sum(xij - xij^2) 
  * - First-order Taylor approximation for convexification
- * - Double-loop optimization with λ := ϑλ
+ * - Double-loop optimization with lambda := lambda
  * 
  * Solves the relaxed problem:
- * min φα(ρ) + (1/λ) * Σ(x̃ij - x̃ij²)
- * s.t. Σx̃ij = 1, 0 ≤ x̃ij ≤ 1, capacity constraints
+ * min phialpha(rho) + (1/lambda) * Sum(xij - xij^2)
+ * s.t. Sumxij = 1, 0 <= xij <= 1, capacity constraints
  */
 public class PSCAAlgorithm {
     
     // Algorithm parameters
     private static final double INITIAL_LAMBDA = 1.0;      // Initial penalty parameter
-    private static final double LAMBDA_SCALING = 0.5;      // ϑ scaling factor
+    private static final double LAMBDA_SCALING = 0.5;      //  scaling factor
     private static final double CONVERGENCE_TOL = 1e-6;    // Convergence tolerance
     private static final int MAX_OUTER_ITERATIONS = 50;    // Max outer loop iterations
     private static final int MAX_INNER_ITERATIONS = 100;   // Max inner loop iterations
-    private static final double MIN_LAMBDA = 1e-6;         // Minimum λ value
+    private static final double MIN_LAMBDA = 1e-6;         // Minimum lambda value
     
     /**
      * Result of P-SCA optimization
      */
     public static class PSCAResult {
-        public final Map<MobileUser, Map<Object, Double>> relaxedAssignments; // x̃ij values
+        public final Map<MobileUser, Map<Object, Double>> relaxedAssignments; // xij values
         public final Map<Object, Set<MobileUser>> binaryAssignments;          // Final binary assignments
         public final double objectiveValue;                                   // Final objective
         public final int outerIterations;                                     // Convergence iterations
@@ -62,7 +62,7 @@ public class PSCAAlgorithm {
      * @param droneStations Available drone base stations
      * @param groundStations Available ground base stations  
      * @param users Mobile users to assign
-     * @param policy α-fairness policy
+     * @param policy alpha-fairness policy
      * @param meanPacketSize Average packet size for load calculation
      * @return PSCAResult containing optimal assignments
      */
@@ -77,7 +77,7 @@ public class PSCAAlgorithm {
         allBaseStations.addAll(droneStations);
         allBaseStations.addAll(groundStations);
         
-        // Initialize relaxed variables x̃ij
+        // Initialize relaxed variables xij
         Map<MobileUser, Map<Object, Double>> relaxedAssignments = initializeRelaxedAssignments(users, allBaseStations);
         
         double lambda = INITIAL_LAMBDA;
@@ -88,7 +88,7 @@ public class PSCAAlgorithm {
         // Outer loop: Update penalty parameter
         for (outerIter = 0; outerIter < MAX_OUTER_ITERATIONS && !converged; outerIter++) {
             
-            // Inner loop: Solve penalized problem with fixed λ
+            // Inner loop: Solve penalized problem with fixed lambda
             double currentObjective = solveInnerProblem(relaxedAssignments, allBaseStations, 
                                                       users, policy, meanPacketSize, lambda);
             
@@ -100,7 +100,7 @@ public class PSCAAlgorithm {
             }
             
             prevObjective = currentObjective;
-            lambda *= LAMBDA_SCALING; // λ := ϑλ
+            lambda *= LAMBDA_SCALING; // lambda := lambda
         }
         
         // Convert relaxed assignments to binary assignments
@@ -115,7 +115,7 @@ public class PSCAAlgorithm {
     }
     
     /**
-     * Initialize relaxed assignment variables x̃ij uniformly
+     * Initialize relaxed assignment variables xij uniformly
      */
     private static Map<MobileUser, Map<Object, Double>> initializeRelaxedAssignments(
             List<MobileUser> users, List<Object> baseStations) {
@@ -202,7 +202,7 @@ public class PSCAAlgorithm {
                 }
             }
             
-            // Normalize to satisfy Σx̃ij = 1
+            // Normalize to satisfy Sumxij = 1
             normalizeAssignments(testAssignments);
             
             // Temporarily update assignments
@@ -224,7 +224,7 @@ public class PSCAAlgorithm {
     
     /**
      * Calculate penalized objective with Taylor approximation
-     * Implements: φα(ρ) + (1/λ) * Σ(x̃ij - x̃ij²) with convex approximation
+     * Implements: phialpha(rho) + (1/lambda) * Sum(xij - xij^2) with convex approximation
      */
     private static double calculatePenalizedObjective(
             Map<MobileUser, Map<Object, Double>> assignments,
@@ -250,10 +250,10 @@ public class PSCAAlgorithm {
             loads.put(bs, Math.min(1.0, load));
         }
         
-        // α-fairness objective
+        // alpha-fairness objective
         double alphaObjective = AlphaFairnessLoadBalancer.calculateAlphaFairnessObjective(loads, policy);
         
-        // Penalty term with Taylor approximation: x̃ij - x̃ij² ≤ x̃ij - (x̃ij^f)² - 2*x̃ij^f*(x̃ij - x̃ij^f)
+        // Penalty term with Taylor approximation: xij - xij^2 <= xij - (xij^f)^2 - 2*xij^f*(xij - xij^f)
         double penaltyTerm = 0.0;
         for (MobileUser user : users) {
             for (Object bs : baseStations) {
@@ -280,7 +280,7 @@ public class PSCAAlgorithm {
     }
     
     /**
-     * Normalize assignments to satisfy Σx̃ij = 1
+     * Normalize assignments to satisfy Sumxij = 1
      */
     private static void normalizeAssignments(Map<Object, Double> assignments) {
         double sum = assignments.values().stream().mapToDouble(Double::doubleValue).sum();
@@ -304,7 +304,7 @@ public class PSCAAlgorithm {
             }
         }
         
-        // Assign each user to base station with highest x̃ij value
+        // Assign each user to base station with highest xij value
         for (MobileUser user : relaxedAssignments.keySet()) {
             Object bestBS = relaxedAssignments.get(user).entrySet().stream()
                 .max(Map.Entry.comparingByValue())
@@ -358,7 +358,7 @@ public class PSCAAlgorithm {
             double sum = result.relaxedAssignments.get(user).values().stream()
                 .mapToDouble(Double::doubleValue).sum();
             if (Math.abs(sum - 1.0) > 1e-6) {
-                return false; // Constraint Σx̃ij = 1 violated
+                return false; // Constraint Sumxij = 1 violated
             }
         }
         

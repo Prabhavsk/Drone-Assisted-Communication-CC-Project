@@ -9,27 +9,27 @@ import java.util.*;
 /**
  * Alpha-Fairness Load Balancing Implementation
  * 
- * This class implements the α-fairness load balancing formulation from the research paper:
- * - Equation (8): ρj = Σ xij * λi * μ / rij (traffic load calculation)
- * - Equation (9): φα(ρ) = Σ(1-ρj)^(1-α)/(α-1) for α≥0, α≠1
- *                        = -Σlog(1-ρj) for α=1
+ * This class implements the alpha-fairness load balancing formulation from the research paper:
+ * - Equation (8): rhoj = Sum xij * lambdai * mu / rij (traffic load calculation)
+ * - Equation (9): phialpha(rho) = Sum(1-rhoj)^(1-alpha)/(alpha-1) for alpha>=0, alpha!=1
+ *                        = -Sumlog(1-rhoj) for alpha=1
  * 
- * Different α values provide different fairness policies:
- * - α = 0: Min-sum load policy (maximize total idle time)
- * - α = 1: Proportional-fair policy (maximize geometric mean of idle time)
- * - α = 2: Latency-optimal policy (minimize average latency)
- * - α = ∞: Min-max load policy (minimize maximum load)
+ * Different alpha values provide different fairness policies:
+ * - alpha = 0: Min-sum load policy (maximize total idle time)
+ * - alpha = 1: Proportional-fair policy (maximize geometric mean of idle time)
+ * - alpha = 2: Latency-optimal policy (minimize average latency)
+ * - alpha = infinity: Min-max load policy (minimize maximum load)
  */
 public class AlphaFairnessLoadBalancer {
     
     /**
-     * Fairness policy types corresponding to different α values
+     * Fairness policy types corresponding to different alpha values
      */
     public enum FairnessPolicy {
-        MIN_SUM(0.0),           // α = 0: Minimize sum of loads
-        PROPORTIONAL_FAIR(1.0), // α = 1: Proportional fairness
-        LATENCY_OPTIMAL(2.0),   // α = 2: Latency optimization
-        MIN_MAX(Double.POSITIVE_INFINITY); // α = ∞: Min-max fairness
+        MIN_SUM(0.0),           // alpha = 0: Minimize sum of loads
+        PROPORTIONAL_FAIR(1.0), // alpha = 1: Proportional fairness
+        LATENCY_OPTIMAL(2.0),   // alpha = 2: Latency optimization
+        MIN_MAX(Double.POSITIVE_INFINITY); // alpha = infinity: Min-max fairness
         
         public final double alpha;
         
@@ -42,8 +42,8 @@ public class AlphaFairnessLoadBalancer {
      * Traffic load and fairness calculation result
      */
     public static class LoadBalancingResult {
-        public final Map<Object, Double> baseStationLoads;  // ρj for each base station
-        public final double fairnessObjective;              // φα(ρ)
+        public final Map<Object, Double> baseStationLoads;  // rhoj for each base station
+        public final double fairnessObjective;              // phialpha(rho)
         public final Map<Object, Set<MobileUser>> assignments; // User assignments
         public final FairnessPolicy policy;
         public final double totalLoad;
@@ -71,13 +71,13 @@ public class AlphaFairnessLoadBalancer {
     
     /**
      * Calculate traffic load for a base station
-     * Implements equation (8): ρj = Σ xij * λi * μ / rij
+     * Implements equation (8): rhoj = Sum xij * lambdai * mu / rij
      * 
      * @param baseStation Target base station
      * @param assignedUsers Set of users assigned to this base station
-     * @param meanPacketSize Average packet size μ (bits)
+     * @param meanPacketSize Average packet size mu (bits)
      * @param useAFRelay Whether to use AF relay model for rate calculation
-     * @return Traffic load ρj ∈ [0,1]
+     * @return Traffic load rhoj in [0,1]
      */
     public static double calculateTrafficLoad(Object baseStation, Set<MobileUser> assignedUsers,
                                             double meanPacketSize, boolean useAFRelay) {
@@ -92,7 +92,7 @@ public class AlphaFairnessLoadBalancer {
             }
         }
         
-        return Math.min(1.0, totalLoad); // Ensure load ∈ [0,1]
+        return Math.min(1.0, totalLoad); // Ensure load in [0,1]
     }
     
     /**
@@ -128,7 +128,7 @@ public class AlphaFairnessLoadBalancer {
     }
     
     /**
-     * Calculate α-fairness objective function
+     * Calculate alpha-fairness objective function
      * Implements equation (9) from the research paper
      */
     public static double calculateAlphaFairnessObjective(Map<Object, Double> loads, FairnessPolicy policy) {
@@ -136,10 +136,10 @@ public class AlphaFairnessLoadBalancer {
         double objective = 0.0;
         
         if (Double.isInfinite(alpha)) {
-            // Min-max policy: φα(ρ) = max{ρj}
+            // Min-max policy: phialpha(rho) = max{rhoj}
             return loads.values().stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
         } else if (Math.abs(alpha - 1.0) < 1e-9) {
-            // Proportional-fair policy: φα(ρ) = -Σlog(1-ρj)
+            // Proportional-fair policy: phialpha(rho) = -Sumlog(1-rhoj)
             for (double load : loads.values()) {
                 if (load < 1.0) {
                     objective -= Math.log(1.0 - load);
@@ -148,7 +148,7 @@ public class AlphaFairnessLoadBalancer {
                 }
             }
         } else {
-            // General α-fairness: φα(ρ) = Σ(1-ρj)^(1-α)/(α-1)
+            // General alpha-fairness: phialpha(rho) = Sum(1-rhoj)^(1-alpha)/(alpha-1)
             for (double load : loads.values()) {
                 if (load < 1.0) {
                     objective += Math.pow(1.0 - load, 1.0 - alpha) / (alpha - 1.0);
@@ -162,7 +162,7 @@ public class AlphaFairnessLoadBalancer {
     }
     
     /**
-     * Optimize load balancing using α-fairness with greedy assignment
+     * Optimize load balancing using alpha-fairness with greedy assignment
      * This is a heuristic approach; the paper uses P-SCA for exact optimization
      */
     public static LoadBalancingResult optimizeLoadBalancing(
@@ -182,7 +182,7 @@ public class AlphaFairnessLoadBalancer {
             assignments.put(bs, new HashSet<>());
         }
         
-        // Greedy assignment based on α-fairness objective
+        // Greedy assignment based on alpha-fairness objective
         for (MobileUser user : users) {
             Object bestBS = null;
             double bestObjective = Double.POSITIVE_INFINITY;

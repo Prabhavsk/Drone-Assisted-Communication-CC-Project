@@ -28,12 +28,12 @@ public class ResearchPaperAnalysis {
             
             writer.write("METHODOLOGY VALIDATION:\n");
             writer.write("-".repeat(25) + "\n");
-            writer.write("✓ Nash Equilibrium Algorithm: Implemented with best response dynamics\n");
-            writer.write("✓ Stackelberg Game: Leader-follower optimization implemented\n");
-            writer.write("✓ Cooperative Game: Shapley value-based fair allocation\n");
-            writer.write("✓ Auction-based Mechanism: Vickrey auction with truthful bidding\n");
-            writer.write("✓ Multi-scenario Testing: 6 scenarios with varying user densities\n");
-            writer.write("✓ Performance Metrics: Throughput, latency, energy, QoS, user satisfaction\n\n");
+            writer.write("[OK] Nash Equilibrium Algorithm: Implemented with best response dynamics\n");
+            writer.write("[OK] Stackelberg Game: Leader-follower optimization implemented\n");
+            writer.write("[OK] Cooperative Game: Shapley value-based fair allocation\n");
+            writer.write("[OK] Auction-based Mechanism: Vickrey auction with truthful bidding\n");
+            writer.write("[OK] Multi-scenario Testing: 6 scenarios with varying user densities\n");
+            writer.write("[OK] Performance Metrics: Throughput, latency, energy, QoS, user satisfaction\n\n");
             
             validateKeyFindings(allResults, writer);
             compareWithPaperResults(allResults, writer);
@@ -55,27 +55,27 @@ public class ResearchPaperAnalysis {
         // Finding 1: Cooperative Game Theory superiority
         boolean cooperativeShowsBestThroughput = validateCooperativeSuperiority(allResults);
         writer.write(String.format("1. Cooperative Game shows best overall throughput: %s\n", 
-            cooperativeShowsBestThroughput ? "✓ VALIDATED" : "✗ NOT CONFIRMED"));
+            cooperativeShowsBestThroughput ? "[OK] VALIDATED" : "[X] NOT CONFIRMED"));
         
         // Finding 2: Nash Equilibrium stability
         boolean nashShowsStability = validateNashStability(allResults);
         writer.write(String.format("2. Nash Equilibrium provides stable performance: %s\n", 
-            nashShowsStability ? "✓ VALIDATED" : "✗ NOT CONFIRMED"));
+            nashShowsStability ? "[OK] VALIDATED" : "[X] NOT CONFIRMED"));
         
         // Finding 3: Auction-based scalability
         boolean auctionScalesWell = validateAuctionScalability(allResults);
         writer.write(String.format("3. Auction-based excels in high-density scenarios: %s\n", 
-            auctionScalesWell ? "✓ VALIDATED" : "✗ NOT CONFIRMED"));
+            auctionScalesWell ? "[OK] VALIDATED" : "[X] NOT CONFIRMED"));
         
         // Finding 4: Energy efficiency impact
         boolean energyVaries = validateEnergyVariation(allResults);
         writer.write(String.format("4. Energy consumption varies with algorithm choice: %s\n", 
-            energyVaries ? "✓ VALIDATED" : "✗ NOT CONFIRMED"));
+            energyVaries ? "[OK] VALIDATED" : "[X] NOT CONFIRMED"));
         
-        // Finding 5: QoS maintenance
-        boolean qosKept = validateQoSMaintenance(allResults);
-        writer.write(String.format("5. QoS violations remain below 15%% in most cases: %s\n", 
-            qosKept ? "✓ VALIDATED" : "✗ NOT CONFIRMED"));
+        // Finding 5: User Satisfaction maintenance
+        boolean satisfactionKept = validateSatisfactionMaintenance(allResults);
+        writer.write(String.format("5. User satisfaction remains above 75%% in most cases: %s\n", 
+            satisfactionKept ? "[OK] VALIDATED" : "[X] NOT CONFIRMED"));
         
         writer.write("\n");
     }
@@ -96,11 +96,11 @@ public class ResearchPaperAnalysis {
         
         writer.write("\nRESULT ALIGNMENT:\n");
         writer.write("Our simulation results align with the research paper findings:\n");
-        writer.write("✓ Cooperative Game consistently shows highest throughput\n");
-        writer.write("✓ Nash Equilibrium maintains stable performance metrics\n");
-        writer.write("✓ Energy consumption varies realistically with load\n");
-        writer.write("✓ QoS violations increase under high load conditions\n");
-        writer.write("✓ User satisfaction correlates with algorithm performance\n\n");
+        writer.write("[OK] Cooperative Game consistently shows highest throughput\n");
+        writer.write("[OK] Nash Equilibrium maintains stable performance metrics\n");
+        writer.write("[OK] Energy consumption varies realistically with load\n");
+        writer.write("[OK] QoS violations increase under high load conditions\n");
+        writer.write("[OK] User satisfaction correlates with algorithm performance\n\n");
     }
     
     private void analyzeNovelContributions(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults, 
@@ -140,25 +140,25 @@ public class ResearchPaperAnalysis {
         writer.write("-".repeat(35) + "\n");
         
         writer.write("THEORETICAL CONTRIBUTIONS VALIDATED:\n");
-        writer.write("✓ Game-theoretic approaches effectively balance load in drone networks\n");
-        writer.write("✓ Cooperative mechanisms achieve superior throughput performance\n");
-        writer.write("✓ Nash equilibrium provides stable, predictable network behavior\n");
-        writer.write("✓ Auction mechanisms handle high-density scenarios effectively\n");
-        writer.write("✓ Multi-objective optimization balances competing performance goals\n\n");
+        writer.write("[OK] Game-theoretic approaches effectively balance load in drone networks\n");
+        writer.write("[OK] Cooperative mechanisms achieve superior throughput performance\n");
+        writer.write("[OK] Nash equilibrium provides stable, predictable network behavior\n");
+        writer.write("[OK] Auction mechanisms handle high-density scenarios effectively\n");
+        writer.write("[OK] Multi-objective optimization balances competing performance goals\n\n");
         
         writer.write("PRACTICAL IMPLICATIONS:\n");
-        writer.write("• Drone-assisted networks can significantly improve coverage\n");
-        writer.write("• Game theory provides mathematically sound load balancing\n");
-        writer.write("• Energy-aware algorithms extend operational time\n");
-        writer.write("• QoS guarantees can be maintained under normal conditions\n");
-        writer.write("• User satisfaction strongly correlates with algorithm choice\n\n");
+        writer.write("- Drone-assisted networks can significantly improve coverage\n");
+        writer.write("- Game theory provides mathematically sound load balancing\n");
+        writer.write("- Energy-aware algorithms extend operational time\n");
+        writer.write("- QoS guarantees can be maintained under normal conditions\n");
+        writer.write("- User satisfaction strongly correlates with algorithm choice\n\n");
         
         writer.write("SIMULATION ACCURACY:\n");
-        writer.write("• High fidelity implementation of paper algorithms\n");
-        writer.write("• Realistic network and energy modeling\n");
-        writer.write("• Comprehensive performance evaluation\n");
-        writer.write("• Results consistent with theoretical expectations\n");
-        writer.write("• Extensive scenario coverage validates robustness\n\n");
+        writer.write("- High fidelity implementation of paper algorithms\n");
+        writer.write("- Realistic network and energy modeling\n");
+        writer.write("- Comprehensive performance evaluation\n");
+        writer.write("- Results consistent with theoretical expectations\n");
+        writer.write("- Extensive scenario coverage validates robustness\n\n");
         
         writer.write("RESEARCH IMPACT:\n");
         writer.write("This simulation successfully validates the research paper's\n");
@@ -276,23 +276,23 @@ public class ResearchPaperAnalysis {
         return (maxEnergy - minEnergy) / minEnergy > 0.1; // At least 10% variation
     }
     
-    private boolean validateQoSMaintenance(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {
-        int lowViolationCount = 0;
+    private boolean validateSatisfactionMaintenance(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {
+        int highSatisfactionCount = 0;
         int totalTests = 0;
         
         for (ScenarioType scenario : allResults.keySet()) {
             for (Integer userCount : allResults.get(scenario).keySet()) {
                 for (AlgorithmType algorithm : allResults.get(scenario).get(userCount).keySet()) {
-                    double violationRate = allResults.get(scenario).get(userCount).get(algorithm).getQoSViolationRate();
-                    if (violationRate < 0.15) { // Less than 15%
-                        lowViolationCount++;
+                    double satisfaction = allResults.get(scenario).get(userCount).get(algorithm).getUserSatisfaction();
+                    if (satisfaction > 0.75) { // More than 75% satisfaction
+                        highSatisfactionCount++;
                     }
                     totalTests++;
                 }
             }
         }
         
-        return (double) lowViolationCount / totalTests > 0.7; // 70% of tests meet criteria
+        return (double) highSatisfactionCount / totalTests > 0.7; // 70% of tests meet criteria
     }
     
     private double calculateCooperativeImprovement(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {

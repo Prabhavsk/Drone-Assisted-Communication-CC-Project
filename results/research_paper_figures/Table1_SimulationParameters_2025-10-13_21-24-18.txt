@@ -2,7 +2,7 @@ Table 1: Simulation Parameters
 ============================================================
 Parameter                      | Value                    
 ------------------------------------------------------------
-Simulation Area                | 5000m × 5000m            
+Simulation Area                | 5000m * 5000m            
 Number of Ground BS            | 4                        
 Number of Drone BS             | 6                        
 Number of Users                | 50, 100, 150, 200        
@@ -12,7 +12,7 @@ Bandwidth                      | 20 MHz
 UE Transmission Power          | 20 mW                    
 DBS Transmission Power         | 1 W                      
 Noise Power Density            | -174 dBm/Hz              
-α-Fairness Parameter           | 0.5, 1.0, 2.0            
+alpha-Fairness Parameter       | 0.5, 1.0, 2.0            
 Simulation Time                | 100 seconds              
 Number of Runs                 | 50                       
 ============================================================

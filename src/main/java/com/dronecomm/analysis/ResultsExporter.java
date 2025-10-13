@@ -57,7 +57,7 @@ public class ResultsExporter {
                         AlgorithmType algorithm = algorithmEntry.getKey();
                         SimulationResult result = algorithmEntry.getValue();
                         
-                        writer.write(String.format("%s,%d,%s,%.2f,%.2f,%.2f,%.3f,%.2f,%.2f\n",
+                        writer.write(String.format("%s,%d,%s,%.2f,%.2f,%.2f,%.3f,%.2f\n",
                             scenario.name(),
                             userCount,
                             algorithm.getDisplayName(),
@@ -65,7 +65,6 @@ public class ResultsExporter {
                             result.getAverageLatency(),
                             result.getTotalEnergyConsumption(),
                             result.getLoadBalanceIndex(),
-                            result.getQoSViolationRate() * 100,
                             result.getUserSatisfaction() * 100
                         ));
                     }
@@ -101,7 +100,7 @@ public class ResultsExporter {
                     AlgorithmType bestThroughput = findBestAlgorithm(results, r -> r.getAverageThroughput());
                     AlgorithmType bestLatency = findBestAlgorithm(results, r -> -r.getAverageLatency()); // Lower is better
                     AlgorithmType bestEnergy = findBestAlgorithm(results, r -> -r.getTotalEnergyConsumption()); // Lower is better
-                    AlgorithmType bestQoS = findBestAlgorithm(results, r -> -r.getQoSViolationRate()); // Lower is better
+                    AlgorithmType bestSatisfaction = findBestAlgorithm(results, r -> r.getUserSatisfaction()); // Higher is better
                     
                     writer.write(String.format("  Best Throughput: %s (%.2f Mbps)\n", 
                         bestThroughput.getDisplayName(), 
@@ -112,9 +111,9 @@ public class ResultsExporter {
                     writer.write(String.format("  Best Energy: %s (%.2f J)\n", 
                         bestEnergy.getDisplayName(), 
                         results.get(bestEnergy).getTotalEnergyConsumption()));
-                    writer.write(String.format("  Best QoS: %s (%.2f%% violations)\n", 
-                        bestQoS.getDisplayName(), 
-                        results.get(bestQoS).getQoSViolationRate() * 100));
+                    writer.write(String.format("  Best Satisfaction: %s (%.2f%%)\n", 
+                        bestSatisfaction.getDisplayName(), 
+                        results.get(bestSatisfaction).getUserSatisfaction() * 100));
                     writer.write("\n");
                 }
                 writer.write("\n");
@@ -143,7 +142,7 @@ public class ResultsExporter {
             analyzePerformanceTrends(allResults, writer);
             analyzeScalabilityTrends(allResults, writer);
             analyzeEnergyEfficiencyTrends(allResults, writer);
-            analyzeQoSTrends(allResults, writer);
+            analyzeSatisfactionTrends(allResults, writer);
             
             writer.write("\nCONCLUSIONS:\n");
             writer.write("-".repeat(15) + "\n");
@@ -193,12 +192,12 @@ public class ResultsExporter {
         writer.write("   - Distance-based positioning impacts energy consumption\n");
     }
     
-    private void analyzeQoSTrends(Map<ScenarioType, Map<Integer, Map<AlgorithmType, SimulationResult>>> allResults, 
+    private void analyzeSatisfactionTrends(Map<ScenarioType, Map<Integer, Map<AlgorithmType, SimulationResult>>> allResults, 
             FileWriter writer) throws IOException {
-        writer.write("\n4. QUALITY OF SERVICE:\n");
-        writer.write("   - QoS violations increase with network congestion\n");
-        writer.write("   - Ground station integration improves reliability\n");
-        writer.write("   - User satisfaction correlates with load balancing efficiency\n");
+        writer.write("\n4. USER SATISFACTION:\n");
+        writer.write("   - User satisfaction decreases with network congestion\n");
+        writer.write("   - Ground station integration improves service quality\n");
+        writer.write("   - Satisfaction correlates with load balancing efficiency\n");
     }
     
     public static class SimulationResult {
@@ -206,24 +205,58 @@ public class ResultsExporter {
         private final double averageLatency;
         private final double totalEnergyConsumption;
         private final double loadBalanceIndex;
-        private final double qosViolationRate;
         private final double userSatisfaction;
         
+        // NEW: Detailed metrics for research paper charts
+        private Map<String, Double> baseStationLoads;           // BS name -> load (0.0-1.0)
+        private List<double[]> userPositions;                   // [x, y] coordinates
+        private List<double[]> dronePositions;                  // [x, y] coordinates
+        private List<double[]> groundPositions;                 // [x, y] coordinates
+        private Map<String, List<Integer>> assignments;         // BS name -> list of user indices
+        private List<Double> convergenceHistory;                // Objective value per iteration
+        private Map<Double, Map<String, Double>> alphaMetrics;  // alpha -> (metric_name -> value)
+        
         public SimulationResult(double averageThroughput, double averageLatency, double totalEnergyConsumption,
-                double loadBalanceIndex, double qosViolationRate, double userSatisfaction) {
+                double loadBalanceIndex, double userSatisfaction) {
             this.averageThroughput = averageThroughput;
             this.averageLatency = averageLatency;
             this.totalEnergyConsumption = totalEnergyConsumption;
             this.loadBalanceIndex = loadBalanceIndex;
-            this.qosViolationRate = qosViolationRate;
             this.userSatisfaction = userSatisfaction;
+            
+            // Initialize with empty collections (backward compatible)
+            this.baseStationLoads = new java.util.HashMap<>();
+            this.userPositions = new java.util.ArrayList<>();
+            this.dronePositions = new java.util.ArrayList<>();
+            this.groundPositions = new java.util.ArrayList<>();
+            this.assignments = new java.util.HashMap<>();
+            this.convergenceHistory = new java.util.ArrayList<>();
+            this.alphaMetrics = new java.util.HashMap<>();
         }
         
+        // Existing getters
         public double getAverageThroughput() { return averageThroughput; }
         public double getAverageLatency() { return averageLatency; }
         public double getTotalEnergyConsumption() { return totalEnergyConsumption; }
         public double getLoadBalanceIndex() { return loadBalanceIndex; }
-        public double getQoSViolationRate() { return qosViolationRate; }
         public double getUserSatisfaction() { return userSatisfaction; }
+        
+        // NEW: Getters for detailed metrics
+        public Map<String, Double> getBaseStationLoads() { return baseStationLoads; }
+        public List<double[]> getUserPositions() { return userPositions; }
+        public List<double[]> getDronePositions() { return dronePositions; }
+        public List<double[]> getGroundPositions() { return groundPositions; }
+        public Map<String, List<Integer>> getAssignments() { return assignments; }
+        public List<Double> getConvergenceHistory() { return convergenceHistory; }
+        public Map<Double, Map<String, Double>> getAlphaMetrics() { return alphaMetrics; }
+        
+        // NEW: Setters for detailed metrics (allows incremental population)
+        public void setBaseStationLoads(Map<String, Double> loads) { this.baseStationLoads = loads; }
+        public void setUserPositions(List<double[]> positions) { this.userPositions = positions; }
+        public void setDronePositions(List<double[]> positions) { this.dronePositions = positions; }
+        public void setGroundPositions(List<double[]> positions) { this.groundPositions = positions; }
+        public void setAssignments(Map<String, List<Integer>> assignments) { this.assignments = assignments; }
+        public void setConvergenceHistory(List<Double> history) { this.convergenceHistory = history; }
+        public void setAlphaMetrics(Map<Double, Map<String, Double>> metrics) { this.alphaMetrics = metrics; }
     }
 }
