@@ -282,4 +282,124 @@ public class AlphaFairnessLoadBalancer {
         double maxPossibleVariance = Math.pow(maxLoad, 2);
         return Math.max(0.0, 1.0 - result.loadVariance / maxPossibleVariance);
     }
+    
+    /**
+     * Calculate Shapley values for coalition members (cooperative game theory)
+     * Shapley value: φi(v) = (1/n!) * Σ_S⊂N\{i} [v(S∪{i}) - v(S)]
+     * 
+     * Represents fair value distribution in coalition
+     * 
+     * @param droneStations Participating drone base stations
+     * @param groundStations Participating ground base stations
+     * @param coalition Set of users forming the coalition
+     * @param meanPacketSize Average packet size for load calculation
+     * @param policy Fairness policy for coalition value calculation
+     * @return Map of stations to their Shapley values
+     */
+    public static Map<Object, Double> calculateShapleyValues(
+            List<DroneBaseStation> droneStations,
+            List<GroundBaseStation> groundStations,
+            Set<MobileUser> coalition,
+            double meanPacketSize,
+            FairnessPolicy policy) {
+        
+        Map<Object, Double> shapleyValues = new HashMap<>();
+        List<Object> stations = new ArrayList<>();
+        stations.addAll(droneStations);
+        stations.addAll(groundStations);
+        
+        int n = stations.size();
+        
+        // For each station, calculate its Shapley value
+        for (int i = 0; i < n; i++) {
+            Object station = stations.get(i);
+            double shapleyValue = 0.0;
+            
+            // Enumerate all subsets of other stations
+            List<Set<Object>> subsets = generateSubsets(stations, i);
+            
+            long factorial = 1;
+            for (int j = 1; j <= n; j++) {
+                factorial *= j;
+            }
+            
+            for (Set<Object> subset : subsets) {
+                // Coalition value without this station
+                double valueWithout = calculateCoalitionValue(subset, coalition, meanPacketSize, policy);
+                
+                // Coalition value with this station
+                Set<Object> subsetWithStation = new HashSet<>(subset);
+                subsetWithStation.add(station);
+                double valueWith = calculateCoalitionValue(subsetWithStation, coalition, meanPacketSize, policy);
+                
+                // Marginal contribution
+                double marginalContribution = valueWith - valueWithout;
+                shapleyValue += marginalContribution;
+            }
+            
+            // Normalize by (n-1)! which is the number of subset partitions
+            long subfactorial = 1;
+            for (int j = 1; j < n; j++) {
+                subfactorial *= j;
+            }
+            
+            shapleyValues.put(station, shapleyValue / subfactorial);
+        }
+        
+        return shapleyValues;
+    }
+    
+    /**
+     * Calculate coalition value (welfare/objective)
+     * 
+     * @param stations Stations in this coalition
+     * @param users Users being served
+     * @param meanPacketSize Average packet size
+     * @param policy Fairness policy
+     * @return Coalition value
+     */
+    private static double calculateCoalitionValue(
+            Set<Object> stations,
+            Set<MobileUser> users,
+            double meanPacketSize,
+            FairnessPolicy policy) {
+        
+        Map<Object, Double> loads = new HashMap<>();
+        for (Object station : stations) {
+            loads.put(station, calculateTrafficLoad(station, users, meanPacketSize, false));
+        }
+        
+        return calculateAlphaFairnessObjective(loads, policy);
+    }
+    
+    /**
+     * Generate all subsets (power set) for a list, excluding specific element by index
+     * 
+     * @param items List of all items
+     * @param excludeIndex Index of element to exclude
+     * @return List of all subsets excluding the specified element
+     */
+    private static List<Set<Object>> generateSubsets(List<Object> items, int excludeIndex) {
+        List<Set<Object>> subsets = new ArrayList<>();
+        List<Object> filtered = new ArrayList<>();
+        
+        for (int i = 0; i < items.size(); i++) {
+            if (i != excludeIndex) {
+                filtered.add(items.get(i));
+            }
+        }
+        
+        int n = filtered.size();
+        for (int i = 0; i < (1 << n); i++) {
+            Set<Object> subset = new HashSet<>();
+            for (int j = 0; j < n; j++) {
+                if ((i & (1 << j)) > 0) {
+                    subset.add(filtered.get(j));
+                }
+            }
+            subsets.add(subset);
+        }
+        
+        return subsets;
+    }
 }

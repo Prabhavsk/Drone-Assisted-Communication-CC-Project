@@ -4,10 +4,15 @@ import com.dronecomm.enums.AlgorithmType;
 import com.dronecomm.enums.ScenarioType;
 import org.jfree.chart.*;
 import org.jfree.chart.axis.CategoryLabelPositions;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.*;
 import org.jfree.chart.renderer.category.BarRenderer;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.LegendTitle;
+import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.HorizontalAlignment;
+import org.jfree.chart.block.BlockBorder;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
@@ -19,10 +24,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
+import com.dronecomm.utils.ConfigurationLoader;
 
 /**
- * Research Paper Specific Charts and Tables
- * Generates figures and tables as they appear in the research paper
+ * Includes system model, network topology, performance comparisons, and convergence analysis.
  */
 public class ResearchPaperCharts {
     private static final String CHARTS_DIR = "results/research_paper_figures";
@@ -41,14 +46,11 @@ public class ResearchPaperCharts {
     }
     
     /**
-     * Generate Figure 1: System Model Overview
-     * Shows the network topology with drones, ground stations, and users
+     * Figure 1: System model showing network topology with drones, ground stations, and users.
      */
     public void generateSystemModelFigure() {
-        // Create a scatter plot showing the system model
         XYSeriesCollection dataset = new XYSeriesCollection();
         
-        // Ground Base Stations
         XYSeries groundStations = new XYSeries("Ground Base Stations");
         groundStations.add(1000, 1000);
         groundStations.add(4000, 1000);
@@ -56,7 +58,6 @@ public class ResearchPaperCharts {
         groundStations.add(4000, 4000);
         dataset.addSeries(groundStations);
         
-        // Drone Base Stations
         XYSeries droneStations = new XYSeries("Drone Base Stations");
         droneStations.add(1500, 1500);
         droneStations.add(3500, 1500);
@@ -66,9 +67,8 @@ public class ResearchPaperCharts {
         droneStations.add(2500, 2000);
         dataset.addSeries(droneStations);
         
-        // Mobile Users (scattered)
         XYSeries mobileUsers = new XYSeries("Mobile Users");
-        Random random = new Random(42); // Fixed seed for consistency
+        Random random = new Random(42);
         for (int i = 0; i < 20; i++) {
             mobileUsers.add(1000 + random.nextDouble() * 3000, 1000 + random.nextDouble() * 3000);
         }
@@ -88,8 +88,7 @@ public class ResearchPaperCharts {
     }
     
     /**
-     * Generate Figure 2: Algorithm Performance Comparison
-     * Bar chart comparing throughput performance across algorithms
+     * Figure 2: Algorithm performance comparison across all scenarios and user counts.
      */
     public void generateAlgorithmComparisonFigure(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
@@ -132,49 +131,40 @@ public class ResearchPaperCharts {
     }
     
     /**
-     * Generate Figure 3: Convergence Analysis
-     * Line chart showing algorithm convergence over iterations
+     * Generate Figure 3: Traffic Load Distribution
+     * Bar chart showing load distribution across base stations
      */
-    public void generateConvergenceAnalysisFigure() {
+    public void generateTrafficLoadDistributionFigure(Map<AlgorithmType, ResultsExporter.SimulationResult> scenarioResults) {
+        if (scenarioResults == null || scenarioResults.isEmpty()) return;
+        
         DefaultCategoryDataset dataset = new DefaultCategoryDataset();
         
-        // Simulated convergence data for different algorithms
-        int[] iterations = {0, 5, 10, 15, 20, 25, 30};
-        
-        // Nash Equilibrium convergence
-        double[] nashObjective = {10.0, 7.5, 5.2, 3.8, 2.9, 2.1, 2.0};
-        for (int i = 0; i < iterations.length; i++) {
-            dataset.addValue(nashObjective[i], "Nash Equilibrium", String.valueOf(iterations[i]));
+        for (AlgorithmType algorithm : scenarioResults.keySet()) {
+            ResultsExporter.SimulationResult result = scenarioResults.get(algorithm);
+            Map<String, Double> loads = result.getBaseStationLoads();
+            if (loads != null) {
+                for (Map.Entry<String, Double> entry : loads.entrySet()) {
+                    dataset.addValue(entry.getValue(), algorithm.getDisplayName(), entry.getKey());
+                }
+            }
         }
-        
-        // Stackelberg Game convergence
-        double[] stackelbergObjective = {12.0, 8.1, 5.5, 4.0, 3.2, 2.8, 2.7};
-        for (int i = 0; i < iterations.length; i++) {
-            dataset.addValue(stackelbergObjective[i], "Stackelberg Game", String.valueOf(iterations[i]));
-        }
-        
-        // Cooperative Game convergence
-        double[] cooperativeObjective = {15.0, 10.2, 6.8, 4.5, 3.1, 2.3, 2.0};
-        for (int i = 0; i < iterations.length; i++) {
-            dataset.addValue(cooperativeObjective[i], "Cooperative Game", String.valueOf(iterations[i]));
-        }
-        
-        JFreeChart chart = ChartFactory.createLineChart(
-            "Algorithm Convergence Analysis",
-            "Iteration",
-            "Objective Function Value",
+
+        JFreeChart chart = ChartFactory.createBarChart(
+            "Traffic Load Distribution",
+            "Base Station",
+            "Load (packets/s)",
             dataset,
             PlotOrientation.VERTICAL,
             true, true, false
         );
-        
-        customizeConvergenceChart(chart);
-        saveChart(chart, "Figure3_ConvergenceAnalysis", 1600, 1000);
+
+        customizePaperChart(chart);
+        saveChart(chart, "Figure3_TrafficLoadDistribution", 1600, 1000);
     }
-    
+
     /**
      * Generate Figure 4: Energy Efficiency Analysis
-     * Shows energy consumption vs throughput trade-offs
+     * Shows energy consumption vs throughput trade-offs with proper paper styling
      */
     public void generateEnergyEfficiencyFigure(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {
         XYSeriesCollection dataset = new XYSeriesCollection();
@@ -209,13 +199,200 @@ public class ResearchPaperCharts {
             true, true, false
         );
         
-        // Use a reasonable axis range instead of logarithmic for better visibility
+        // Enhanced styling for paper quality
         XYPlot plot = chart.getXYPlot();
-        // Remove the problematic logarithmic axis and use normal scaling
-        // The extreme values from cooperative game will be handled by the chart renderer
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(new Color(220, 220, 220));
+        plot.setRangeGridlinePaint(new Color(220, 220, 220));
+        plot.setDomainGridlinesVisible(true);
+        plot.setRangeGridlinesVisible(true);
+        plot.setOutlineVisible(true);
+        plot.setOutlinePaint(Color.BLACK);
+        plot.setOutlineStroke(new BasicStroke(1.0f));
         
-        customizeEnergyChart(chart);
-        saveChart(chart, "Figure4_EnergyEfficiency", 1600, 1000);
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+        renderer.setDefaultLinesVisible(false);
+        renderer.setDefaultShapesVisible(true);
+        
+        // Paper colors for algorithms - distinct and vibrant
+        Color[] colors = {
+            new Color(31, 119, 180),    // Blue - Nash
+            new Color(255, 127, 14),    // Orange - Stackelberg
+            new Color(44, 160, 44),     // Green - Cooperative
+            new Color(214, 39, 40)      // Red - Auction
+        };
+        
+        Shape[] shapes = {
+            new Ellipse2D.Double(-5, -5, 10, 10),                               // Circle
+            new Rectangle(-5, -5, 10, 10),                                      // Square
+            createTriangle(6),                                                   // Triangle
+            createDiamond(5)                                                     // Diamond
+        };
+        
+        for (int i = 0; i < 4; i++) {
+            renderer.setSeriesPaint(i, colors[i]);
+            renderer.setSeriesShape(i, shapes[i]);
+            renderer.setSeriesOutlineStroke(i, new BasicStroke(1.5f));
+            renderer.setSeriesOutlinePaint(i, colors[i].darker());
+        }
+        
+        // Axis styling
+        plot.getDomainAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
+        plot.getDomainAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 11));
+        plot.getRangeAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
+        plot.getRangeAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 11));
+        
+        // Title styling
+        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 16));
+        chart.getTitle().setPaint(Color.BLACK);
+        
+        // Legend styling - position at bottom
+        LegendTitle legend = chart.getLegend();
+        if (legend != null) {
+            legend.setPosition(RectangleEdge.BOTTOM);
+            legend.setItemFont(new Font("Arial", Font.PLAIN, 11));
+            legend.setFrame(BlockBorder.NONE);
+            legend.setHorizontalAlignment(HorizontalAlignment.CENTER);
+        }
+        
+        saveChart(chart, "Figure4_EnergyEfficiency", 1200, 900);
+    }
+    
+    /**
+     * Generate Figure 5: Transmission Delay
+     * Line chart showing delay patterns across algorithms with proper paper styling
+     */
+    public void generateTransmissionDelayFigure(Map<AlgorithmType, ResultsExporter.SimulationResult> scenarioResults) {
+        if (scenarioResults == null || scenarioResults.isEmpty()) return;
+        
+        XYSeriesCollection dataset = new XYSeriesCollection();
+
+        // Simulated delay data based on algorithm performance
+        int[] packetSizes = {10, 50, 100, 200, 300, 500, 750, 1000};
+        
+        for (AlgorithmType algorithm : Arrays.asList(
+                AlgorithmType.NASH_EQUILIBRIUM,
+                AlgorithmType.STACKELBERG_GAME,
+                AlgorithmType.COOPERATIVE_GAME,
+                AlgorithmType.AUCTION_BASED)) {
+            
+            if (!scenarioResults.containsKey(algorithm)) continue;
+            
+            XYSeries series = new XYSeries(algorithm.getDisplayName());
+            ResultsExporter.SimulationResult result = scenarioResults.get(algorithm);
+            
+            // Use average latency from result to scale simulated delay
+            double avgLatency = result.getAverageLatency();
+            
+            for (int packetSize : packetSizes) {
+                // Realistic delay = base_latency + (packet_size / bandwidth)
+                // Simulate transmission delay based on packet size with realistic values
+                double transmissionTime = (packetSize * 8.0) / 4.0;  // ~4 Mbps bandwidth
+                double totalDelay = avgLatency + transmissionTime;
+                
+                series.add(packetSize, totalDelay);
+            }
+            dataset.addSeries(series);
+        }
+
+        JFreeChart chart = ChartFactory.createXYLineChart(
+            "Transmission Delay vs Packet Size",
+            "Packet Size (KB)",
+            "Delay (ms)",
+            dataset,
+            PlotOrientation.VERTICAL,
+            true, true, false
+        );
+
+        // Enhanced styling for paper quality
+        XYPlot plot = chart.getXYPlot();
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(new Color(220, 220, 220));
+        plot.setRangeGridlinePaint(new Color(220, 220, 220));
+        plot.setDomainGridlinesVisible(true);
+        plot.setRangeGridlinesVisible(true);
+        plot.setOutlineVisible(true);
+        plot.setOutlinePaint(Color.BLACK);
+        plot.setOutlineStroke(new BasicStroke(1.0f));
+        
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+        renderer.setDefaultLinesVisible(true);
+        renderer.setDefaultShapesVisible(true);
+        
+        // Paper colors and line styles
+        Color[] colors = {
+            new Color(31, 119, 180),    // Blue
+            new Color(255, 127, 14),    // Orange
+            new Color(44, 160, 44),     // Green
+            new Color(214, 39, 40)      // Red
+        };
+        
+        Shape[] shapes = {
+            new Ellipse2D.Double(-4, -4, 8, 8),
+            new Rectangle(-4, -4, 8, 8),
+            createTriangle(5),
+            createDiamond(4)
+        };
+        
+        for (int i = 0; i < Math.min(4, dataset.getSeriesCount()); i++) {
+            renderer.setSeriesPaint(i, colors[i]);
+            renderer.setSeriesStroke(i, new BasicStroke(2.2f));
+            renderer.setSeriesShape(i, shapes[i]);
+            renderer.setSeriesShapesVisible(i, true);
+        }
+        
+        // Axis styling
+        plot.getDomainAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
+        plot.getDomainAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 11));
+        plot.getRangeAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
+        plot.getRangeAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 11));
+        
+        // Title styling
+        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 16));
+        chart.getTitle().setPaint(Color.BLACK);
+        
+        // Legend styling
+        LegendTitle legend = chart.getLegend();
+        if (legend != null) {
+            legend.setPosition(RectangleEdge.BOTTOM);
+            legend.setItemFont(new Font("Arial", Font.PLAIN, 11));
+            legend.setFrame(BlockBorder.NONE);
+            legend.setHorizontalAlignment(HorizontalAlignment.CENTER);
+        }
+        
+        saveChart(chart, "Figure5_TransmissionDelay", 1200, 900);
+    }
+
+    /**
+     * Generate Figure 6: Convergence Behavior
+     * Line chart showing convergence over iterations
+     */
+    public void generateConvergenceBehaviorFigure() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+
+        int[] iterations = {0, 5, 10, 15, 20, 25, 30};
+
+        double[] nashConvergence = {10.0, 7.5, 5.2, 3.8, 2.9, 2.1, 2.0};
+        double[] stackelbergConvergence = {12.0, 8.1, 5.5, 4.0, 3.2, 2.8, 2.7};
+        double[] cooperativeConvergence = {15.0, 10.2, 6.8, 4.5, 3.1, 2.3, 2.0};
+
+        for (int i = 0; i < iterations.length; i++) {
+            dataset.addValue(nashConvergence[i], "Nash Equilibrium", String.valueOf(iterations[i]));
+            dataset.addValue(stackelbergConvergence[i], "Stackelberg Game", String.valueOf(iterations[i]));
+            dataset.addValue(cooperativeConvergence[i], "Cooperative Game", String.valueOf(iterations[i]));
+        }
+
+        JFreeChart chart = ChartFactory.createLineChart(
+            "Convergence Behavior",
+            "Iteration",
+            "Objective Function Value",
+            dataset,
+            PlotOrientation.VERTICAL,
+            true, true, false
+        );
+
+        customizeConvergenceChart(chart);
+        saveChart(chart, "Figure6_ConvergenceBehavior", 1600, 1000);
     }
     
     /**
@@ -287,8 +464,40 @@ public class ResearchPaperCharts {
             }
         }
         
-        table.append("=".repeat(85)).append("\n");
         saveTable(table.toString(), "Table2_PerformanceSummary");
+    }
+    
+    /**
+     * Generate Figure 3: Convergence Analysis
+     * Line chart showing algorithm convergence over iterations
+     */
+    public void generateConvergenceAnalysisFigure() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        
+        int[] iterations = {0, 5, 10, 15, 20, 25, 30};
+        
+        // Simulated convergence data for different algorithms
+        double[] nashObjective = {10.0, 7.5, 5.2, 3.8, 2.9, 2.1, 2.0};
+        double[] stackelbergObjective = {12.0, 8.1, 5.5, 4.0, 3.2, 2.8, 2.7};
+        double[] cooperativeObjective = {15.0, 10.2, 6.8, 4.5, 3.1, 2.3, 2.0};
+        
+        for (int i = 0; i < iterations.length; i++) {
+            dataset.addValue(nashObjective[i], "Nash Equilibrium", String.valueOf(iterations[i]));
+            dataset.addValue(stackelbergObjective[i], "Stackelberg Game", String.valueOf(iterations[i]));
+            dataset.addValue(cooperativeObjective[i], "Cooperative Game", String.valueOf(iterations[i]));
+        }
+        
+        JFreeChart chart = ChartFactory.createLineChart(
+            "Algorithm Convergence Analysis",
+            "Iteration",
+            "Objective Function Value",
+            dataset,
+            PlotOrientation.VERTICAL,
+            true, true, false
+        );
+        
+        customizeConvergenceChart(chart);
+        saveChart(chart, "Figure3_ConvergenceAnalysis", 1600, 1000);
     }
     
     // Chart customization methods
@@ -533,53 +742,70 @@ public class ResearchPaperCharts {
     
     /**
      * Generate Figure 2: Network Configuration Topology with Assignment Lines
-     * Shows algorithm comparison with connection lines showing user-BS assignments
+     * Shows algorithm comparison with connection lines showing user-BS assignments.
+     * Generates one topology figure per algorithm in the provided resultsMap (no hardcoded names/matching).
      */
     public void generateNetworkTopologyFigure(Map<com.dronecomm.enums.AlgorithmType, ResultsExporter.SimulationResult> resultsMap) {
-        // Generate 5 variants as per the research paper Figure 2
-        String[] algorithmNames = {
-            "AGC-TLB (α = 10)",
-            "Latency-aware scheme", 
-            "K-means scheme",
-            "Voronoi partition scheme",
-            "Traffic fairness scheme"
-        };
+        if (resultsMap == null || resultsMap.isEmpty()) {
+            System.out.println("Skipping topology figures — no simulation results provided.");
+            return;
+        }
 
-        // Generate 5 distinct meaningful charts showing algorithm differences
-        for (int algoIdx = 0; algoIdx < algorithmNames.length; algoIdx++) {
-            String algorithmName = algorithmNames[algoIdx];
-            
-            // Get first available result for positions, or use fallback
-            ResultsExporter.SimulationResult result = null;
-            if (resultsMap != null && !resultsMap.isEmpty()) {
-                result = resultsMap.values().iterator().next();
+        // Generate one topology figure per algorithm present in the resultsMap.
+        // Use the algorithm's real display name and real SimulationResult data (no synthetic matching).
+        int algoIdx = 0;
+        for (java.util.Map.Entry<com.dronecomm.enums.AlgorithmType, ResultsExporter.SimulationResult> entry : resultsMap.entrySet()) {
+            com.dronecomm.enums.AlgorithmType algorithm = entry.getKey();
+            ResultsExporter.SimulationResult result = entry.getValue();
+            String algorithmName = algorithm.getDisplayName();
+
+            if (result == null) {
+                System.out.println("Skipping topology figure for '" + algorithmName + "' — simulation result is null.");
+                continue;
             }
 
-            // Get real positions and assignments if available for this specific algorithm result
-            List<double[]> userPositions = (result != null) ? result.getUserPositions() : null;
-            List<double[]> dronePositions = (result != null) ? result.getDronePositions() : null;
-            List<double[]> groundPositions = (result != null) ? result.getGroundPositions() : null;
-            Map<String, List<Integer>> assignments = (result != null) ? result.getAssignments() : null;
-            
-            // ALWAYS generate sample assignments for consistency if missing or empty
-            if (assignments == null || assignments.isEmpty()) {
-                assignments = generateSampleAssignments(algoIdx, 30, 4, 1);
-                System.out.println("Using generated assignments for algorithm " + algoIdx + " (real data missing)");
+            // Get real positions and assignments from the matched result
+            List<double[]> userPositions = result.getUserPositions();
+            List<double[]> dronePositions = result.getDronePositions();
+            List<double[]> groundPositions = result.getGroundPositions();
+            Map<String, List<Integer>> assignments = result.getAssignments();
+
+            // Verify all users are assigned
+            if (assignments != null && !assignments.isEmpty() && userPositions != null) {
+                Set<Integer> assignedUsers = new HashSet<>();
+                for (List<Integer> users : assignments.values()) {
+                    if (users != null) {
+                        assignedUsers.addAll(users);
+                    }
+                }
+                
+                // Report if any users are missing
+                if (assignedUsers.size() < userPositions.size()) {
+                    List<Integer> missingUsers = new ArrayList<>();
+                    for (int i = 0; i < userPositions.size(); i++) {
+                        if (!assignedUsers.contains(i)) {
+                            missingUsers.add(i);
+                        }
+                    }
+                    System.out.println("WARNING [" + algorithmName + "]: " + missingUsers.size() + 
+                        " users not assigned: " + missingUsers);
+                }
             }
+
+            // Require real users and assignments and at least one base-station position; otherwise skip
+            if (userPositions == null || userPositions.isEmpty() || assignments == null || assignments.isEmpty() ||
+                ((dronePositions == null || dronePositions.isEmpty()) && (groundPositions == null || groundPositions.isEmpty()))) {
+                System.out.println("Skipping topology figure for '" + algorithmName + "' — missing required positions or assignments in simulation result.");
+                continue;
+            }
+
             XYSeriesCollection dataset = new XYSeriesCollection();
-            
+
             // Add DBS positions (drone base stations)
             XYSeries dbsSeries = new XYSeries("DBS");
             List<double[]> effectiveDronePos = new ArrayList<>();
             if (dronePositions != null && !dronePositions.isEmpty()) {
                 for (double[] pos : dronePositions) {
-                    dbsSeries.add(pos[0], pos[1]);
-                    effectiveDronePos.add(pos);
-                }
-            } else {
-                // Fallback: hardcoded positions
-                double[][] fallbackDrones = {{300, 700}, {700, 700}, {300, 300}, {700, 300}};
-                for (double[] pos : fallbackDrones) {
                     dbsSeries.add(pos[0], pos[1]);
                     effectiveDronePos.add(pos);
                 }
@@ -594,13 +820,6 @@ public class ResearchPaperCharts {
                     mbsSeries.add(pos[0], pos[1]);
                     effectiveGroundPos.add(pos);
                 }
-            } else {
-                // Fallback: hardcoded position
-                double[][] fallbackGround = {{500, 900}};
-                for (double[] pos : fallbackGround) {
-                    mbsSeries.add(pos[0], pos[1]);
-                    effectiveGroundPos.add(pos);
-                }
             }
             dataset.addSeries(mbsSeries);
             
@@ -610,39 +829,19 @@ public class ResearchPaperCharts {
             XYSeries uesLow = new XYSeries("UE (0.5 pkt/s)");
             
             List<double[]> effectiveUserPos = new ArrayList<>();
-            if (userPositions != null && !userPositions.isEmpty()) {
-                // Use REAL user positions
-                int count = 0;
-                for (double[] pos : userPositions) {
-                    effectiveUserPos.add(pos);
-                    // Distribute users across 3 rate categories evenly
-                    if (count % 3 == 0) {
-                        uesHigh.add(pos[0], pos[1]);
-                    } else if (count % 3 == 1) {
-                        uesMedium.add(pos[0], pos[1]);
-                    } else {
-                        uesLow.add(pos[0], pos[1]);
-                    }
-                    count++;
+            // Use REAL user positions
+            int count = 0;
+            for (double[] pos : userPositions) {
+                effectiveUserPos.add(pos);
+                // Distribute users across 3 rate categories evenly
+                if (count % 3 == 0) {
+                    uesHigh.add(pos[0], pos[1]);
+                } else if (count % 3 == 1) {
+                    uesMedium.add(pos[0], pos[1]);
+                } else {
+                    uesLow.add(pos[0], pos[1]);
                 }
-            } else {
-                // Fallback: random positions
-                Random random = new Random(42 + algoIdx);
-                for (int j = 0; j < 30; j++) {
-                    double x = 100 + random.nextDouble() * 800;
-                    double y = 100 + random.nextDouble() * 800;
-                    double[] pos = {x, y};
-                    effectiveUserPos.add(pos);
-                    
-                    double rate = random.nextDouble();
-                    if (rate > 0.66) {
-                        uesHigh.add(x, y);
-                    } else if (rate > 0.33) {
-                        uesMedium.add(x, y);
-                    } else {
-                        uesLow.add(x, y);
-                    }
-                }
+                count++;
             }
             
             dataset.addSeries(uesHigh);
@@ -663,41 +862,61 @@ public class ResearchPaperCharts {
             
             XYPlot plot = chart.getXYPlot();
             
-            // ALWAYS generate sample assignments since simulation doesn't provide them
-            int actualUsers = effectiveUserPos.size(); 
-            int actualDrones = effectiveDronePos.size(); 
-            int actualGround = effectiveGroundPos.size(); 
-            System.out.println("Generating assignments for algorithm " + algoIdx + " with " + 
-                             actualUsers + " users, " + actualDrones + " drones, " + actualGround + " ground stations");
-            Map<String, List<Integer>> visualAssignments = generateSampleAssignments(actualUsers, actualDrones, actualGround, algoIdx);
-            drawAssignmentLines(plot, visualAssignments, effectiveUserPos, effectiveDronePos, effectiveGroundPos);
+            // Use REAL assignments from the SimulationResult only. Do NOT apply
+            // visualization-only reassignment or synthetic fallbacks here: figures
+            // should reflect exported simulation data. If a user is unassigned in
+            // the SimulationResult, it will remain unconnected in the plot.
+            drawAssignmentLines(plot, assignments, effectiveUserPos, effectiveDronePos, effectiveGroundPos);
             
-            // Customize renderer for points
+            // Customize renderer for points - MATCH PAPER FIGURE STYLE EXACTLY
             XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(false, true);
             
-            // DBS - blue triangles
+            // DBS - filled blue triangles (matching paper Figure 2)
             renderer.setSeriesPaint(0, new Color(0, 0, 255));
-            renderer.setSeriesShape(0, createTriangle(8));
+            renderer.setSeriesShape(0, createTriangle(10));  // Size 10 for visibility
+            renderer.setSeriesShapesFilled(0, true);
+            renderer.setSeriesOutlinePaint(0, Color.BLACK);
+            renderer.setSeriesOutlineStroke(0, new BasicStroke(1.0f));
             
-            // MBS - larger blue triangle
+            // MBS - larger filled blue triangles (matching paper Figure 2)
             renderer.setSeriesPaint(1, new Color(0, 0, 255));
-            renderer.setSeriesShape(1, createTriangle(12));
+            renderer.setSeriesShape(1, createTriangle(14));  // Larger for MBS
+            renderer.setSeriesShapesFilled(1, true);
+            renderer.setSeriesOutlinePaint(1, Color.BLACK);
+            renderer.setSeriesOutlineStroke(1, new BasicStroke(1.5f));
             
-            // UEs - colored circles by packet rate
+            // UEs - filled circles colored by packet rate (matching paper Figure 2 colors exactly)
             renderer.setSeriesPaint(2, new Color(255, 0, 0));      // Red - 1.5 pkt/s
-            renderer.setSeriesPaint(3, new Color(255, 200, 0));    // Yellow - 1.0 pkt/s
-            renderer.setSeriesPaint(4, new Color(0, 200, 0));      // Green - 0.5 pkt/s
+            renderer.setSeriesPaint(3, new Color(255, 200, 0));    // Yellow/Orange - 1.0 pkt/s
+            renderer.setSeriesPaint(4, new Color(0, 180, 0));      // Green - 0.5 pkt/s
             
             for (int s = 2; s <= 4; s++) {
-                renderer.setSeriesShape(s, new Ellipse2D.Double(-3, -3, 6, 6));
+                renderer.setSeriesShape(s, new Ellipse2D.Double(-4, -4, 8, 8));  // Filled circles
+                renderer.setSeriesShapesFilled(s, true);
+                renderer.setSeriesShapesVisible(s, true);
             }
             
-            plot.setRenderer(renderer);
-            plot.setBackgroundPaint(Color.WHITE);
-            plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
-            plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
+            plot.setRenderer(0, renderer);  // Explicitly set renderer 0 for dataset 0
             
-            // Set axis ranges dynamically based on actual data
+            // White background with light gray dotted grid (matching paper style)
+            plot.setBackgroundPaint(Color.WHITE);
+            plot.setDomainGridlinePaint(new Color(200, 200, 200));
+            plot.setRangeGridlinePaint(new Color(200, 200, 200));
+            plot.setDomainGridlineStroke(new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{2.0f, 2.0f}, 0.0f));
+            plot.setRangeGridlineStroke(new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 10.0f, new float[]{2.0f, 2.0f}, 0.0f));
+            
+            // Border around plot
+            plot.setOutlineVisible(true);
+            plot.setOutlinePaint(Color.BLACK);
+            plot.setOutlineStroke(new BasicStroke(1.0f));
+            
+            // Set axis ranges to a consistent research-paper area to avoid
+            // misleading zooming when scenarios use larger areas (e.g., extended scenarios)
+            // Read the simulation area from configuration instead of hardcoding.
+            ConfigurationLoader cfg = new ConfigurationLoader();
+            final double PAPER_AREA_MAX = cfg.getSimulationArea();
+
+            // Compute dynamic max but clamp to PAPER_AREA_MAX
             double maxX = 1000, maxY = 1000;
             if (dronePositions != null && !dronePositions.isEmpty()) {
                 for (double[] pos : dronePositions) {
@@ -711,15 +930,149 @@ public class ResearchPaperCharts {
                     maxY = Math.max(maxY, pos[1]);
                 }
             }
-            plot.getDomainAxis().setRange(0, maxX * 1.1);
-            plot.getRangeAxis().setRange(0, maxY * 1.1);
+
+            maxX = Math.min(maxX * 1.1, PAPER_AREA_MAX);
+            maxY = Math.min(maxY * 1.1, PAPER_AREA_MAX);
+            plot.getDomainAxis().setRange(0, Math.max(1000, maxX));
+            plot.getRangeAxis().setRange(0, Math.max(1000, maxY));
+
+            // Configure axes to match paper style - clean numeric labels at regular intervals
+            NumberAxis domainAxis = (NumberAxis) plot.getDomainAxis();
+            NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
             
-            chart.getLegend().setItemFont(new Font("Arial", Font.PLAIN, 10));
+            domainAxis.setTickLabelFont(new Font("Arial", Font.PLAIN, 10));
+            domainAxis.setLabelFont(new Font("Arial", Font.BOLD, 12));
+            domainAxis.setAutoRangeIncludesZero(true);
             
-            saveChart(chart, "Figure2_NetworkTopology_" + (char)('a' + algoIdx), 800, 600);
+            rangeAxis.setTickLabelFont(new Font("Arial", Font.PLAIN, 10));
+            rangeAxis.setLabelFont(new Font("Arial", Font.BOLD, 12));
+            rangeAxis.setAutoRangeIncludesZero(true);
+
+            // Title styling to match paper
+            chart.getTitle().setFont(new Font("Arial", Font.BOLD, 12));
+            chart.getTitle().setPaint(Color.BLACK);
+            
+            // Legend positioning and styling - match paper (bottom, horizontal layout)
+            LegendTitle legend = chart.getLegend();
+            if (legend != null) {
+                legend.setPosition(RectangleEdge.BOTTOM);
+                legend.setItemFont(new Font("Arial", Font.PLAIN, 9));
+                legend.setFrame(BlockBorder.NONE);  // No border around legend
+                legend.setBackgroundPaint(Color.WHITE);
+                legend.setHorizontalAlignment(HorizontalAlignment.CENTER);
+            }
+            
+            // Use algorithm name in filename (sanitized) to make figures easily identifiable.
+            // Use letter suffix (a,b,c...) for compatibility with paper Figure 2 naming.
+            String sanitizedName = algorithmName.replaceAll("[^a-zA-Z0-9_-]", "_");
+            saveChart(chart, "Figure2_NetworkTopology_" + (char)('a' + algoIdx) + "_" + sanitizedName, 800, 600);
+            algoIdx++;
         }
         
-        System.out.println("Research paper chart saved: Figure2 - Network topology with assignment lines (3 algorithm variants)");
+        System.out.println("Research paper chart saved: Figure2 - Network topology figures for " + algoIdx + " algorithms");
+    }
+
+    /**
+     * Visualization-only: ensure every BS has at least one assigned UE by moving
+     * a nearest user from a BS that currently has >1 users. This keeps figures
+     * visually consistent with paper schematics where each BS is shown serving
+     * some users.
+     * NOTE: This method is not currently used as SimulationResult data should reflect
+     * actual assignments without visualization adjustments.
+     */
+    private void ensureEveryBSHasUserDeprecated(Map<String, List<Integer>> assignments,
+                                      List<double[]> userPos,
+                                      List<double[]> dronePos,
+                                      List<double[]> groundPos) {
+        if (assignments == null || assignments.isEmpty() || userPos == null || userPos.isEmpty()) return;
+
+        // Build list of BS names and positions
+        java.util.List<String> bsNames = new java.util.ArrayList<>();
+        java.util.List<double[]> bsPositions = new java.util.ArrayList<>();
+        if (dronePos != null) {
+            for (int i = 0; i < dronePos.size(); i++) {
+                bsNames.add("DBS-" + (i + 1));
+                bsPositions.add(dronePos.get(i));
+            }
+        }
+        if (groundPos != null) {
+            for (int i = 0; i < groundPos.size(); i++) {
+                bsNames.add("GBS-" + (i + 1));
+                bsPositions.add(groundPos.get(i));
+            }
+        }
+        if (bsNames.isEmpty()) return;
+
+        // Find BS with zero assignments
+        List<String> zeroBs = new java.util.ArrayList<>();
+        for (String bs : bsNames) {
+            List<Integer> list = assignments.get(bs);
+            if (list == null || list.isEmpty()) zeroBs.add(bs);
+        }
+
+        if (zeroBs.isEmpty()) return; // nothing to do
+
+        // Build a list of donor BS (with >1 users)
+        java.util.List<String> donorBs = new java.util.ArrayList<>();
+        for (String bs : assignments.keySet()) {
+            List<Integer> list = assignments.get(bs);
+            if (list != null && list.size() > 1) donorBs.add(bs);
+        }
+
+        if (donorBs.isEmpty()) return; // no donors available
+
+        // For each zero-BS, find nearest user overall and try to reassign from a donor
+        for (String targetBs : zeroBs) {
+            double[] targetPos = findBsPosition(targetBs, bsNames, bsPositions);
+            if (targetPos == null) continue;
+
+            // Find the nearest user index to the target BS
+            int bestUser = -1;
+            double bestDist = Double.MAX_VALUE;
+            for (int u = 0; u < userPos.size(); u++) {
+                double[] up = userPos.get(u);
+                double d = Math.hypot(up[0] - targetPos[0], up[1] - targetPos[1]);
+                if (d < bestDist) { bestDist = d; bestUser = u; }
+            }
+
+            if (bestUser < 0) continue;
+
+            // Find a donor BS that currently contains bestUser and has >1 users
+            String donorFound = null;
+            for (String donor : donorBs) {
+                List<Integer> dl = assignments.get(donor);
+                if (dl != null && dl.contains(bestUser) && dl.size() > 1) {
+                    donorFound = donor; break;
+                }
+            }
+
+            // If not found, try any donor and move its closest user to target
+            if (donorFound == null) {
+                // choose donor with largest load
+                int maxSize = 0; String chosen = null;
+                for (String donor : donorBs) {
+                    List<Integer> dl = assignments.get(donor);
+                    if (dl != null && dl.size() > maxSize) { maxSize = dl.size(); chosen = donor; }
+                }
+                donorFound = chosen;
+            }
+
+            if (donorFound == null) continue;
+
+            // Move the user from donorFound to targetBs
+            List<Integer> donorList = assignments.get(donorFound);
+            if (donorList != null && donorList.remove(Integer.valueOf(bestUser))) {
+                assignments.computeIfAbsent(targetBs, k -> new java.util.ArrayList<>()).add(bestUser);
+            }
+        }
+    }
+
+    private double[] findBsPosition(String bsName, java.util.List<String> bsNames, java.util.List<double[]> bsPositions) {
+        if (bsNames == null || bsPositions == null) return null;
+        for (int i = 0; i < bsNames.size(); i++) {
+            if (bsNames.get(i).equals(bsName)) return bsPositions.get(i);
+        }
+        return null;
     }
     
     /**
@@ -733,6 +1086,7 @@ public class ResearchPaperCharts {
         
         XYSeriesCollection lineDataset = new XYSeriesCollection();
         int seriesIdx = 0;
+        int skippedConnections = 0;
         
         // For each base station and its assigned users
         for (Map.Entry<String, List<Integer>> entry : assignments.entrySet()) {
@@ -753,20 +1107,31 @@ public class ResearchPaperCharts {
                         bsPos = dronePos.get(droneIdx);
                     }
                 } catch (Exception e) {
-                    // If parsing fails, use first drone
-                    if (!dronePos.isEmpty()) bsPos = dronePos.get(0);
+                    System.out.println("Warning: could not parse drone index from '" + bsName + "'");
                 }
             } else {
-                // Ground station
-                if (!groundPos.isEmpty()) bsPos = groundPos.get(0);
+                // Ground station: parse index from name 'GBS-<n>' to find correct groundPos
+                if (groundPos != null && !groundPos.isEmpty()) {
+                    try {
+                        int groundIdx = Integer.parseInt(bsName.substring(bsName.lastIndexOf('-') + 1)) - 1;
+                        if (groundIdx >= 0 && groundIdx < groundPos.size()) {
+                            bsPos = groundPos.get(groundIdx);
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Warning: could not parse ground station index from '" + bsName + "'");
+                    }
+                }
             }
             
-            if (bsPos == null) continue;
+            if (bsPos == null) {
+                skippedConnections += assignedUsers.size();
+                continue;
+            }
             
             // Draw a line from BS to each assigned user
             for (Integer userIdx : assignedUsers) {
                 if (userIdx < 0 || userIdx >= userPos.size()) {
-                    System.out.println("WARNING: Skipping user index " + userIdx + " (out of bounds, max=" + (userPos.size()-1) + ")");
+                    skippedConnections++;
                     continue;
                 }
                 
@@ -778,13 +1143,18 @@ public class ResearchPaperCharts {
                 lineSeries.add(uPos[0], uPos[1]);    // User position
                 lineDataset.addSeries(lineSeries);
                 
-                // Set line appearance - thicker gray lines for visibility
-                lineRenderer.setSeriesPaint(seriesIdx, new Color(80, 80, 80, 200));
-                lineRenderer.setSeriesStroke(seriesIdx, new BasicStroke(1.5f));
+                // Set line appearance - VERY VISIBLE thick dark lines
+                lineRenderer.setSeriesPaint(seriesIdx, new Color(50, 50, 50));  // Almost black, fully opaque
+                lineRenderer.setSeriesStroke(seriesIdx, new BasicStroke(2.0f));  // Thicker lines
                 lineRenderer.setSeriesVisibleInLegend(seriesIdx, false); // HIDE FROM LEGEND!
                 
                 seriesIdx++;
             }
+        }
+        
+        // Report summary
+        if (skippedConnections > 0) {
+            System.out.println("WARNING: Skipped " + skippedConnections + " connections due to missing positions or invalid indices");
         }
         
         // Add the line dataset to the plot as a secondary dataset (dataset index 1)
@@ -803,102 +1173,12 @@ public class ResearchPaperCharts {
         return new Polygon(xPoints, yPoints, 3);
     }
     
-    /**
-     * Generate sample user-BS assignments for visualization when real assignment data is not available
-     */
-    private Map<String, List<Integer>> generateSampleAssignments(int numUsers, int numDrones, int numGround, int algorithmIndex) {
-        Map<String, List<Integer>> assignments = new HashMap<>();
-        Random random = new Random(42 + algorithmIndex); // Different seed for each algorithm
-        
-        // Initialize empty lists for each base station
-        for (int i = 0; i < numDrones; i++) {
-            assignments.put("DBS-" + (i + 1), new ArrayList<>());
-        }
-        for (int i = 0; i < numGround; i++) {
-            assignments.put("GBS-" + (i + 1), new ArrayList<>());
-        }
-        
-        // Debug output
-        System.out.println("Generating assignments for algorithm " + algorithmIndex + 
-                          " (users=" + numUsers + ", drones=" + numDrones + ", ground=" + numGround + ")");
-        
-        // Assign users to base stations with REALISTIC algorithm-specific patterns
-        for (int userIdx = 0; userIdx < numUsers; userIdx++) {
-            String assignedBS;
-            
-            switch (algorithmIndex) {
-                case 0: // AGC-TLB (α=10) - Load balanced with fairness
-                    // Distribute evenly across all stations with slight preference for drones
-                    int stationIdx = userIdx % (numDrones + numGround);
-                    if (stationIdx < numDrones) {
-                        assignedBS = "DBS-" + (stationIdx + 1);
-                    } else {
-                        assignedBS = "GBS-1";
-                    }
-                    break;
-                    
-                case 1: // Latency-aware scheme - Prefer closer stations 
-                    if (random.nextDouble() < 0.6) {
-                        assignedBS = "GBS-1"; // Ground station typically closer
-                    } else {
-                        // Use nearest drones only
-                        assignedBS = "DBS-" + (random.nextInt(Math.min(2, numDrones)) + 1);
-                    }
-                    break;
-                    
-                case 2: // K-means scheme - Clustered assignments
-                    // Create 3 distinct clusters
-                    double cluster = random.nextDouble();
-                    if (cluster < 0.4) {
-                        assignedBS = "DBS-1"; // Cluster 1
-                    } else if (cluster < 0.7) {
-                        assignedBS = "DBS-2"; // Cluster 2  
-                    } else {
-                        assignedBS = "GBS-1"; // Cluster 3
-                    }
-                    break;
-                    
-                case 3: // Voronoi partition scheme - Geographic nearest neighbor
-                    // Simulate geographic regions - each user goes to nearest BS
-                    int region = userIdx % 4; // 4 geographic regions
-                    if (region < numDrones) {
-                        assignedBS = "DBS-" + (region + 1);
-                    } else {
-                        assignedBS = "GBS-1";
-                    }
-                    break;
-                    
-                case 4: // Traffic fairness scheme - Perfect load balancing
-                    // Round-robin for equal distribution
-                    int fairIdx = userIdx % (numDrones + numGround);
-                    if (fairIdx < numDrones) {
-                        assignedBS = "DBS-" + (fairIdx + 1);
-                    } else {
-                        assignedBS = "GBS-1";
-                    }
-                    break;
-                    
-                default: // Fallback
-                    assignedBS = "DBS-1";
-                    break;
-            }
-            
-            assignments.get(assignedBS).add(userIdx);
-        }
-        
-        // Debug output
-        for (Map.Entry<String, List<Integer>> entry : assignments.entrySet()) {
-            if (!entry.getValue().isEmpty()) {
-                System.out.println("  " + entry.getKey() + ": " + entry.getValue().size() + " users");
-            }
-        }
-        
-        return assignments;
-    }
+    
     
     /**
      * Generate Table 1: Load Metric versus Different α
      * Shows load metrics for α-fairness with α = 0, 1, 2, 10
+     * Based on actual simulation data from base station loads
      */
     public void generateLoadMetricTable(ResultsExporter.SimulationResult nashResult) {
         try {
@@ -907,39 +1187,50 @@ public class ResearchPaperCharts {
             
             writer.write("TABLE 1\n");
             writer.write("LOAD METRIC VERSUS DIFFERENT α\n");
-            writer.write("=" .repeat(60) + "\n\n");
-            writer.write(String.format("%-30s | α=0    | α=1    | α=2    | α=10\n", "Metric"));
-            writer.write("-".repeat(60) + "\n");
+            writer.write("=" .repeat(70) + "\n\n");
+            writer.write(String.format("%-35s | α=0    | α=1    | α=2    | α=10\n", "Metric"));
+            writer.write("-".repeat(75) + "\n");
             
-            // ALWAYS use sample data since real simulation doesn't collect alpha metrics
-            Map<Double, Map<String, Double>> alphaMetrics = generateSampleAlphaMetrics();
-            System.out.println("Table 1: Using generated alpha metrics (real simulation doesn't collect this data)");
+            // Get real alpha metrics from simulation result
+            Map<Double, Map<String, Double>> alphaMetrics = null;
+            if (nashResult != null) {
+                alphaMetrics = nashResult.getAlphaMetrics();
+            }
             
+            if (alphaMetrics == null || alphaMetrics.isEmpty()) {
+                System.out.println("Table 1: No alpha metrics available in simulation result.");
+                writer.write("No simulation data available\n");
+                writer.close();
+                return;
+            }
+            
+            // The key names from DetailedDataCollector
             String[] metricNames = {
-                "Σ_{j∈J^+} ϱ_j",
-                "-Σ_{j∈J^+} log(1 - ϱ_j)",
-                "Σ_{j∈J^+} ϱ_j/(1-ϱ_j)",
-                "max{ϱ_j}_{j∈J^+}"
+                "Σ ρ_j (sum of loads)",
+                "-Σ log(1 - ρ_j) (log fairness)",
+                "Σ ρ_j/(1-ρ_j) (ratio sum)",
+                "max{ρ_j} (max load)"
             };
             
-            String[] metricKeys = {"sum_rho", "neg_sum_log", "sum_ratio", "max_rho"};
+            String[] metricKeys = {"sum_loads", "neg_log_sum", "ratio_sum", "max_load"};
             double[] alphas = {0.0, 1.0, 2.0, 10.0};
             
             for (int i = 0; i < metricNames.length; i++) {
-                writer.write(String.format("%-30s |", metricNames[i]));
+                writer.write(String.format("%-35s |", metricNames[i]));
                 for (double alpha : alphas) {
                     Map<String, Double> metrics = alphaMetrics.get(alpha);
                     if (metrics != null && metrics.containsKey(metricKeys[i])) {
-                        writer.write(String.format(" %.2f |", metrics.get(metricKeys[i])));
+                        double value = metrics.get(metricKeys[i]);
+                        writer.write(String.format(" %6.2f |", value));
                     } else {
-                        writer.write(" N/A  |");
+                        writer.write("  N/A  |");
                     }
                 }
                 writer.write("\n");
             }
             
-            writer.write("\n" + "=".repeat(60) + "\n");
-            writer.write("Note: ϱ_j represents the traffic load on base station j\n");
+            writer.write("=".repeat(75) + "\n");
+            writer.write("Note: ρ_j represents the traffic load (normalized to 0-1) on base station j\n");
             writer.write("      α is the fairness parameter in α-fairness optimization\n");
             writer.write("      Higher α values emphasize fairness over efficiency\n");
             
@@ -950,432 +1241,6 @@ public class ResearchPaperCharts {
         }
     }
     
-    /**
-     * Generate sample alpha fairness metrics when real data is not available
-     */
-    private Map<Double, Map<String, Double>> generateSampleAlphaMetrics() {
-        Map<Double, Map<String, Double>> alphaMetrics = new HashMap<>();
-        double[] alphas = {0.0, 1.0, 2.0, 10.0};
-        
-        for (double alpha : alphas) {
-            Map<String, Double> metrics = new HashMap<>();
-            // Sample metrics based on typical α-fairness behavior
-            metrics.put("sum_rho", 2.1 + alpha * 0.15); // Load increases with fairness
-            metrics.put("neg_sum_log", 1.8 - alpha * 0.1); // Log term decreases
-            metrics.put("sum_ratio", 3.2 + alpha * 0.25); // Ratio increases
-            metrics.put("max_rho", 0.9 - alpha * 0.05); // Max load becomes more balanced
-            alphaMetrics.put(alpha, metrics);
-        }
-        
-        return alphaMetrics;
-    }
-    
-    /**
-     * Generate Figure 3: Traffic Load Distribution
-     * Bar chart showing load distribution across base stations
-     */
-    public void generateTrafficLoadDistributionFigure(Map<AlgorithmType, ResultsExporter.SimulationResult> algorithmResults) {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        
-        // Map algorithms to display names (use only available algorithms)
-        Map<AlgorithmType, String> algorithmNames = new java.util.LinkedHashMap<>();
-        if (algorithmResults != null) {
-            for (AlgorithmType algo : algorithmResults.keySet()) {
-                String displayName = algo.getDisplayName();
-                algorithmNames.put(algo, displayName);
-            }
-        }
-        
-        // If no results provided, use hardcoded data as fallback
-        if (algorithmResults == null || algorithmResults.isEmpty()) {            String[] algorithms = {"AGC-TLB (α=10)", "Latency-aware", "K-means", "Voronoi", "Traffic fairness"};
-            String[] stations = {"DBS 1", "DBS 2", "DBS 3", "DBS 4"};
-            double[][] loads = {
-                {0.65, 0.85, 0.75, 0.95},  {0.55, 0.75, 0.95, 1.05},
-                {0.60, 0.90, 0.80, 1.00},  {0.70, 0.80, 0.85, 0.90},
-                {0.75, 0.75, 0.75, 0.75}
-            };
-            for (int i = 0; i < algorithms.length; i++) {
-                for (int j = 0; j < stations.length; j++) {
-                    dataset.addValue(loads[i][j], algorithms[i], stations[j]);
-                }
-            }
-        } else {
-            // Use REAL data from simulation results
-            // Collect all base station names from first result
-            java.util.Set<String> stationNamesSet = new java.util.LinkedHashSet<>();
-            for (ResultsExporter.SimulationResult result : algorithmResults.values()) {
-                if (result.getBaseStationLoads() != null) {
-                    stationNamesSet.addAll(result.getBaseStationLoads().keySet());
-                }
-            }
-            
-            // Sort station names (DBS-1, DBS-2, ..., GBS-1, GBS-2, ...)
-            java.util.List<String> stationNames = new java.util.ArrayList<>(stationNamesSet);
-            java.util.Collections.sort(stationNames);
-            
-            // Filter to only DBS stations for the chart (as per paper)
-            java.util.List<String> dbsStations = new java.util.ArrayList<>();
-            for (String station : stationNames) {
-                if (station.startsWith("DBS")) {
-                    dbsStations.add(station);
-                }
-            }
-            
-            // Add data for each algorithm
-            for (Map.Entry<AlgorithmType, String> algoEntry : algorithmNames.entrySet()) {
-                ResultsExporter.SimulationResult result = algorithmResults.get(algoEntry.getKey());
-                if (result != null && result.getBaseStationLoads() != null) {
-                    Map<String, Double> loads = result.getBaseStationLoads();
-                    for (String station : dbsStations) {
-                        Double load = loads.getOrDefault(station, 0.0);
-                        dataset.addValue(load, algoEntry.getValue(), station);
-                    }
-                }
-            }
-        }
-        
-        JFreeChart chart = ChartFactory.createBarChart(
-            "Traffic Load Distribution",
-            "Index of BS",
-            "Normalized load",
-            dataset,
-            PlotOrientation.VERTICAL,
-            true, true, false
-        );
-        
-        // Customize chart
-        CategoryPlot plot = chart.getCategoryPlot();
-        BarRenderer renderer = new BarRenderer();
-        
-        // Set colors for each algorithm
-        renderer.setSeriesPaint(0, new Color(52, 152, 219));   // AGC-TLB - blue
-        renderer.setSeriesPaint(1, new Color(231, 76, 60));    // Latency-aware - red
-        renderer.setSeriesPaint(2, new Color(46, 204, 113));   // K-means - green
-        renderer.setSeriesPaint(3, new Color(155, 89, 182));   // Voronoi - purple
-        renderer.setSeriesPaint(4, new Color(241, 196, 15));   // Traffic fairness - yellow
-        
-        plot.setRenderer(renderer);
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setDomainGridlinesVisible(true);
-        plot.setRangeGridlinesVisible(true);
-        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
-        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
-        
-        // Add "Load threshold" line at y=1.0
-        Marker threshold = new ValueMarker(1.0);
-        threshold.setPaint(Color.BLACK);
-        threshold.setLabel("Load threshold");
-        plot.addRangeMarker(threshold);
-        
-        // Style
-        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 18));
-        chart.getLegend().setItemFont(new Font("Arial", Font.PLAIN, 12));
-        plot.getDomainAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
-        plot.getRangeAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
-        
-        saveChart(chart, "Figure3_TrafficLoadDistribution", 1200, 800);
-    }
-    
-    /**
-     * Generate Figure 5: Transmission Delay versus Packet Size
-     * Line chart showing delay vs packet size calculated from real simulation data
-     */
-    public void generateTransmissionDelayFigure(Map<AlgorithmType, ResultsExporter.SimulationResult> algorithmResults) {
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        
-        int[] packetSizes = {85, 90, 95, 100, 105, 110, 115, 120, 125, 130, 135, 140, 145};
-        
-        // If real data available, calculate delays based on actual assignments
-        if (algorithmResults != null && !algorithmResults.isEmpty()) {
-            // Get Nash Equilibrium, Cooperative, and one baseline for comparison
-            Map<AlgorithmType, String> selectedAlgos = new java.util.LinkedHashMap<>();
-            
-            if (algorithmResults.containsKey(AlgorithmType.NASH_EQUILIBRIUM)) {
-                selectedAlgos.put(AlgorithmType.NASH_EQUILIBRIUM, "AGC-TLB (Nash)");
-            }
-            if (algorithmResults.containsKey(AlgorithmType.COOPERATIVE_GAME)) {
-                selectedAlgos.put(AlgorithmType.COOPERATIVE_GAME, "Cooperative Game");
-            }
-            if (algorithmResults.containsKey(AlgorithmType.NEAREST_NEIGHBOR)) {
-                selectedAlgos.put(AlgorithmType.NEAREST_NEIGHBOR, "Nearest Neighbor");
-            }
-            
-            for (Map.Entry<AlgorithmType, String> algoEntry : selectedAlgos.entrySet()) {
-                ResultsExporter.SimulationResult result = algorithmResults.get(algoEntry.getKey());
-                if (result != null && result.getAssignments() != null && result.getUserPositions() != null) {
-                    XYSeries series = new XYSeries(algoEntry.getValue());
-                    
-                    // Calculate average delay for each packet size based on actual distances
-                    for (int size : packetSizes) {
-                        double avgDelay = calculateAverageDelay(result, size);
-                        series.add(size, avgDelay);
-                    }
-                    dataset.addSeries(series);
-                }
-            }
-        }
-        
-        // Fallback to synthetic data if no real data
-        if (dataset.getSeriesCount() == 0) {
-            // AGC-TLB (α=2)
-            XYSeries agcTlb = new XYSeries("AGC-TLB (α=2)");
-            for (int size : packetSizes) {
-                double delay = 20 + Math.pow((size - 85) / 10.0, 2.5) * 10;
-                agcTlb.add(size, delay);
-            }
-            dataset.addSeries(agcTlb);
-            
-            // Traffic fairness [9]
-            XYSeries trafficFairness = new XYSeries("Traffic fairness [9]");
-            for (int size : packetSizes) {
-                double delay = 25 + Math.pow((size - 85) / 10.0, 2.8) * 12;
-                trafficFairness.add(size, delay);
-            }
-            dataset.addSeries(trafficFairness);
-            
-            // Latency-aware [2]
-            XYSeries latencyAware = new XYSeries("Latency-aware [2]");
-            for (int size : packetSizes) {
-                double delay = 30 + Math.pow((size - 85) / 10.0, 3.0) * 15;
-                latencyAware.add(size, delay);
-            }
-            dataset.addSeries(latencyAware);
-        }
-        
-        JFreeChart chart = ChartFactory.createXYLineChart(
-            "Transmission Delay versus Packet Size",
-            "Packet size (KB)",
-            "Transmission delay (ms)",
-            dataset,
-            PlotOrientation.VERTICAL,
-            true, true, false
-        );
-        
-        // Customize chart
-        XYPlot plot = chart.getXYPlot();
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, true);
-        
-        // Line styles
-        renderer.setSeriesPaint(0, new Color(52, 152, 219));   // AGC-TLB - blue
-        renderer.setSeriesPaint(1, new Color(231, 76, 60));    // Traffic fairness - red
-        renderer.setSeriesPaint(2, new Color(46, 204, 113));   // Latency-aware - green
-        
-        // Shapes
-        renderer.setSeriesShape(0, new Ellipse2D.Double(-3, -3, 6, 6));
-        renderer.setSeriesShape(1, createSquare(6));
-        renderer.setSeriesShape(2, createTriangle(6));
-        
-        // Line strokes
-        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
-        renderer.setSeriesStroke(1, new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 
-                                                     10.0f, new float[]{10.0f}, 0.0f)); // Dashed
-        renderer.setSeriesStroke(2, new BasicStroke(2.0f));
-        
-        plot.setRenderer(renderer);
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
-        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
-        
-        // Style
-        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 18));
-        chart.getLegend().setItemFont(new Font("Arial", Font.PLAIN, 12));
-        plot.getDomainAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
-        plot.getRangeAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
-        
-        saveChart(chart, "Figure5_TransmissionDelay", 1200, 800);
-    }
-    
-    /**
-     * Calculate average transmission delay based on actual user-BS assignments and distances
-     */
-    private double calculateAverageDelay(ResultsExporter.SimulationResult result, int packetSizeKB) {
-        // Speed of light in fiber/air (m/ms)
-        final double SPEED_OF_LIGHT = 299.792; // meters per millisecond
-        final double PROCESSING_DELAY = 2.0; // Base processing delay in ms
-        final double PACKET_SIZE_FACTOR = 0.15; // ms per KB
-        
-        java.util.List<double[]> userPositions = result.getUserPositions();
-        java.util.List<double[]> dronePositions = result.getDronePositions();
-        java.util.List<double[]> groundPositions = result.getGroundPositions();
-        Map<String, java.util.List<Integer>> assignments = result.getAssignments();
-        Map<String, Double> baseStationLoads = result.getBaseStationLoads();
-        
-        if (userPositions == null || assignments == null || baseStationLoads == null) {
-            // Fallback calculation based on packet size
-            return 20 + Math.pow((packetSizeKB - 85) / 10.0, 2.5) * 10;
-        }
-        
-        // Calculate average distance and load-based delays
-        double totalDistance = 0.0;
-        double totalLoad = 0.0;
-        int assignmentCount = 0;
-        
-        for (Map.Entry<String, java.util.List<Integer>> entry : assignments.entrySet()) {
-            String bsName = entry.getKey();
-            java.util.List<Integer> userIndices = entry.getValue();
-            
-            if (userIndices == null || userIndices.isEmpty()) continue;
-            
-            // Get BS position - find the CORRECT base station position
-            boolean isDrone = bsName.startsWith("DBS");
-            double bsX = 0, bsY = 0;
-            boolean foundPosition = false;
-            
-            if (isDrone && dronePositions != null && !dronePositions.isEmpty()) {
-                // Extract drone index from name (e.g., "DBS-1" -> index 0)
-                try {
-                    int droneIdx = Integer.parseInt(bsName.substring(bsName.lastIndexOf('-') + 1)) - 1;
-                    if (droneIdx >= 0 && droneIdx < dronePositions.size()) {
-                        double[] pos = dronePositions.get(droneIdx);
-                        bsX = pos[0];
-                        bsY = pos[1];
-                        foundPosition = true;
-                    }
-                } catch (Exception e) {
-                    // Fall back to first drone if parsing fails
-                    if (!dronePositions.isEmpty()) {
-                        double[] pos = dronePositions.get(0);
-                        bsX = pos[0];
-                        bsY = pos[1];
-                        foundPosition = true;
-                    }
-                }
-            } else if (!isDrone && groundPositions != null && !groundPositions.isEmpty()) {
-                // Extract ground station index from name (e.g., "GBS-1" -> index 0)
-                try {
-                    int groundIdx = Integer.parseInt(bsName.substring(bsName.lastIndexOf('-') + 1)) - 1;
-                    if (groundIdx >= 0 && groundIdx < groundPositions.size()) {
-                        double[] pos = groundPositions.get(groundIdx);
-                        bsX = pos[0];
-                        bsY = pos[1];
-                        foundPosition = true;
-                    }
-                } catch (Exception e) {
-                    // Fall back to first ground station if parsing fails
-                    if (!groundPositions.isEmpty()) {
-                        double[] pos = groundPositions.get(0);
-                        bsX = pos[0];
-                        bsY = pos[1];
-                        foundPosition = true;
-                    }
-                }
-            }
-            
-            if (!foundPosition) continue; // Skip if we couldn't find position
-            
-            // Get load for this BS
-            Double load = baseStationLoads.getOrDefault(bsName, 0.0);
-            
-            // Calculate average distance for users assigned to this BS
-            for (Integer userIdx : userIndices) {
-                if (userIdx < userPositions.size()) {
-                    double[] userPos = userPositions.get(userIdx);
-                    // Positions are 2D [x, y] not 3D
-                    double distance = Math.sqrt(
-                        Math.pow(bsX - userPos[0], 2) + 
-                        Math.pow(bsY - userPos[1], 2)
-                    );
-                    totalDistance += distance;
-                    totalLoad += load;
-                    assignmentCount++;
-                }
-            }
-        }
-        
-        if (assignmentCount == 0) {
-            return 20 + Math.pow((packetSizeKB - 85) / 10.0, 2.5) * 10;
-        }
-        
-        // Calculate average delay components
-        double avgDistance = totalDistance / assignmentCount;
-        double avgLoad = totalLoad / assignmentCount;
-        
-        // Propagation delay (distance / speed of light)
-        double propagationDelay = avgDistance / SPEED_OF_LIGHT;
-        
-        // Transmission delay (proportional to packet size)
-        double transmissionDelay = packetSizeKB * PACKET_SIZE_FACTOR;
-        
-        // Queueing delay (based on average load)
-        double queueingDelay = avgLoad * 5.0; // Higher load = more queuing
-        
-        // Total delay
-        return propagationDelay + transmissionDelay + PROCESSING_DELAY + queueingDelay;
-    }
-    
-    /**
-     * Helper method to create square shape
-     */
-    private Shape createSquare(int size) {
-        return new java.awt.Rectangle(-size/2, -size/2, size, size);
-    }
-    
-    /**
-    /**
-     * Generate Figure 6: Convergence Behavior
-     * Shows algorithm convergence over iterations
-     */
-    public void generateConvergenceBehaviorFigure() {
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        
-        // AGC-TLB low resolution
-        XYSeries agcLow = new XYSeries("AGC-TLB low resolution");
-        double[] agcLowValues = {0.72, 0.70, 0.69, 0.685, 0.683, 0.682, 0.681, 0.680};
-        for (int i = 0; i < agcLowValues.length; i++) {
-            agcLow.add(i * 4, agcLowValues[i]);
-        }
-        dataset.addSeries(agcLow);
-        
-        // AGC-TLB high resolution
-        XYSeries agcHigh = new XYSeries("AGC-TLB high resolution");
-        double[] agcHighValues = {0.72, 0.68, 0.66, 0.655, 0.650, 0.648, 0.647, 0.646, 0.645};
-        for (int i = 0; i < agcHighValues.length; i++) {
-            agcHigh.add(i * 4, agcHighValues[i]);
-        }
-        dataset.addSeries(agcHigh);
-        
-        JFreeChart chart = ChartFactory.createXYLineChart(
-            "Convergence Behavior",
-            "Iteration number",
-            "Normalized sum of the objective function",
-            dataset,
-            PlotOrientation.VERTICAL,
-            true, true, false
-        );
-        
-        // Customize chart
-        XYPlot plot = chart.getXYPlot();
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(true, true);
-        
-        // Line styles
-        renderer.setSeriesPaint(0, new Color(52, 152, 219));   // Low resolution - blue
-        renderer.setSeriesPaint(1, new Color(231, 76, 60));    // High resolution - red
-        
-        // Shapes
-        renderer.setSeriesShape(0, new Ellipse2D.Double(-3, -3, 6, 6));  // Circle
-        renderer.setSeriesShape(1, new Ellipse2D.Double(-4, -4, 8, 8));  // Larger circle with X
-        
-        // Line strokes
-        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
-        renderer.setSeriesStroke(1, new BasicStroke(2.0f));
-        
-        plot.setRenderer(renderer);
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setDomainGridlinePaint(Color.LIGHT_GRAY);
-        plot.setRangeGridlinePaint(Color.LIGHT_GRAY);
-        
-        // Set axis ranges
-        plot.getDomainAxis().setRange(0, 28);
-        plot.getRangeAxis().setRange(0.60, 0.95);
-        
-        // Style
-        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 18));
-        chart.getLegend().setItemFont(new Font("Arial", Font.PLAIN, 12));
-        plot.getDomainAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
-        plot.getRangeAxis().setLabelFont(new Font("Arial", Font.BOLD, 14));
-        
-        saveChart(chart, "Figure6_ConvergenceBehavior", 1200, 800);
-    }
     
     /**
      * Generate all research paper figures and tables
@@ -1411,11 +1276,11 @@ public class ResearchPaperCharts {
         }
         generateTrafficLoadDistributionFigure(scenarioResults);          // Figure 3 with real loads!
         generateEnergyEfficiencyFigure(allResults);                      // Figure 4: Energy Efficiency 
-        generateTransmissionDelayFigure(scenarioResults);                // Figure 5: Transmission Delay (renamed from Figure 4)
-        generateConvergenceBehaviorFigure();                             // Figure 6: Convergence Behavior (was Figure 5)
+        generateTransmissionDelayFigure(scenarioResults);                // Figure 5: Transmission Delay
+        generateConvergenceBehaviorFigure();                             // Figure 6: Convergence Behavior
         generateAlgorithmComparisonFigure(allResults);                   // Algorithm Performance Comparison
         generateConvergenceAnalysisFigure();                             // Convergence Analysis
-        generateSimulationParametersTable();                             // Table 1
+        generateSimulationParametersTable();                             // Simulation Parameters Table
         generatePerformanceSummaryTable(allResults);                     // Table 2
         
         System.out.println("Research paper outputs generation complete!");

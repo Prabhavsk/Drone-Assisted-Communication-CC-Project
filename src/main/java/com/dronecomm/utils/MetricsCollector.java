@@ -53,9 +53,10 @@ public class MetricsCollector {
     public void setEntities(List<DroneBaseStation> drones, 
                            List<GroundBaseStation> groundStations, 
                            List<MobileUser> users) {
-        this.drones = new ArrayList<>(drones);
-        this.groundStations = new ArrayList<>(groundStations);
-        this.users = new ArrayList<>(users);
+        // defensively handle null inputs to avoid NPEs elsewhere
+        this.drones = drones == null ? Collections.emptyList() : new ArrayList<>(drones);
+        this.groundStations = groundStations == null ? Collections.emptyList() : new ArrayList<>(groundStations);
+        this.users = users == null ? Collections.emptyList() : new ArrayList<>(users);
     }
     
     /**
@@ -265,9 +266,13 @@ public class MetricsCollector {
     public String generateSummaryReport() {
         StringBuilder report = new StringBuilder();
         report.append("=== Simulation Metrics Summary ===\n");
-        report.append(String.format("Average Latency: %.2f ms\n", getAverageLatency()));
-        report.append(String.format("Average Throughput: %.2f Mbps\n", getAverageThroughput()));
-        report.append(String.format("Total Energy Consumed: %.2f J\n", getTotalEnergyConsumed()));
+        // NOTE: units are "model units" and depend on how base stations and users report them.
+        // - Latency is reported using user.getExperiencedLatency() units
+        // - Throughput is aggregated from base station bandwidth/load; confirm units (bps or Mbps) in the station classes
+        // - Energy is a model-specific metric (power/energy units depend on station implementations)
+        report.append(String.format("Average Latency (model units): %.2f\n", getAverageLatency()));
+        report.append(String.format("Average Throughput (model units): %.2f\n", getAverageThroughput()));
+        report.append(String.format("Total Energy (model units): %.2f\n", getTotalEnergyConsumed()));
         report.append(String.format("Average Load Variance: %.2f\n", getAverageLoadVariance()));
         report.append(String.format("Average User Satisfaction: %.2f%%\n", getAverageUserSatisfaction() * 100));
         report.append(String.format("Total Handovers: %d\n", getTotalHandovers()));
@@ -285,6 +290,11 @@ public class MetricsCollector {
         energyConsumptionOverTime.clear();
         loadDistributionOverTime.clear();
         userSatisfactionOverTime.clear();
+        // reset cumulative counters as well
+        totalEnergyConsumed = 0.0;
+        totalDataTransferred = 0.0;
+        totalHandovers = 0;
+        totalConnections = 0;
     }
     
     public void setScenarioName(String scenarioName) {

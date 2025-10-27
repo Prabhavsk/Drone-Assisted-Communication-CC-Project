@@ -3,6 +3,7 @@ package com.dronecomm.algorithms;
 import com.dronecomm.entities.DroneBaseStation;
 import com.dronecomm.entities.GroundBaseStation;
 import com.dronecomm.entities.MobileUser;
+import com.dronecomm.entities.Position3D;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -77,12 +78,53 @@ public class GameTheoreticLoadBalancer {
     
     private LoadBalancingResult executeStackelbergGameWithResearchAlgorithms() {
         try {
-            PSCAAlgorithm.PSCAResult pscaResult = PSCAAlgorithm.solveUserAssociation(
+            // Initialize drone positions for game iterations
+            Map<DroneBaseStation, Position3D> currentPositions = new HashMap<>();
+            for (DroneBaseStation dbs : droneStations) {
+                currentPositions.put(dbs, dbs.getCurrentPosition());
+            }
+            
+            // Stackelberg iterations: Leader decides, followers respond
+            double prevObjective = Double.POSITIVE_INFINITY;
+            boolean gameConverged = false;
+            int gameIterations = 0;
+            final int MAX_STACKELBERG_ITERATIONS = 5; // Limit iterations
+            
+            for (gameIterations = 0; gameIterations < MAX_STACKELBERG_ITERATIONS && !gameConverged; gameIterations++) {
+                // PHASE 1: Leader (Ground Stations) optimize user assignment
+                PSCAAlgorithm.PSCAResult pscaResult = PSCAAlgorithm.solveUserAssociation(
+                    droneStations, groundStations, users,
+                    AlphaFairnessLoadBalancer.FairnessPolicy.LATENCY_OPTIMAL, 1000.0);
+                
+                double currentObjective = calculateStackelbergObjective(pscaResult.finalLoads);
+                
+                // PHASE 2: Followers (Drones) respond by repositioning
+                boolean positionChanged = false;
+                for (DroneBaseStation dbs : droneStations) {
+                    Position3D newPosition = optimizeDronePositionForStackelberg(
+                        dbs, currentPositions, groundStations, users, pscaResult.binaryAssignments);
+                    
+                    if (!newPosition.equals(currentPositions.get(dbs))) {
+                        currentPositions.put(dbs, newPosition);
+                        dbs.setCurrentPosition(newPosition);
+                        positionChanged = true;
+                    }
+                }
+                
+                // Check convergence
+                if (!positionChanged || Math.abs(prevObjective - currentObjective) < 1e-6) {
+                    gameConverged = true;
+                }
+                prevObjective = currentObjective;
+            }
+            
+            // Re-run P-SCA with optimized drone positions
+            PSCAAlgorithm.PSCAResult finalResult = PSCAAlgorithm.solveUserAssociation(
                 droneStations, groundStations, users,
                 AlphaFairnessLoadBalancer.FairnessPolicy.LATENCY_OPTIMAL, 1000.0);
             
-            return new LoadBalancingResult(pscaResult.binaryAssignments,
-                convertLoadsToUtilities(pscaResult.finalLoads), pscaResult.outerIterations, pscaResult.converged);
+            return new LoadBalancingResult(finalResult.binaryAssignments,
+                convertLoadsToUtilities(finalResult.finalLoads), gameIterations, gameConverged);
                 
         } catch (Exception e) {
             return executeSimpleStackelbergGame();
@@ -106,6 +148,96 @@ public class GameTheoreticLoadBalancer {
         return new LoadBalancingResult(assignments, convertLoadsToUtilities(loads), 1, false);
     }
     
+    /**
+     * Optimize drone position for Stackelberg follower phase
+     * Given user assignment from GBS, find best position for this drone
+     */
+    private Position3D optimizeDronePositionForStackelberg(
+            DroneBaseStation dbs,
+            Map<DroneBaseStation, Position3D> currentPositions,
+            List<GroundBaseStation> groundStations,
+            List<MobileUser> users,
+            Map<Object, Set<MobileUser>> userAssignments) {
+        
+        // Users assigned to this drone
+        Set<MobileUser> assignedUsers = userAssignments.getOrDefault(dbs, new HashSet<>());
+        if (assignedUsers.isEmpty()) {
+            return currentPositions.get(dbs); // No optimization needed
+        }
+        
+        // Search for position maximizing coverage of assigned users
+        Position3D bestPosition = currentPositions.get(dbs);
+        double bestCoverage = calculateDroneUsageCoverage(dbs, assignedUsers);
+        
+        // Sample nearby positions on grid
+        List<Position3D> candidates = generateNearbyPositions(currentPositions.get(dbs), 200.0);
+        
+        for (Position3D candidate : candidates) {
+            dbs.setCurrentPosition(candidate);
+            double coverage = calculateDroneUsageCoverage(dbs, assignedUsers);
+            if (coverage > bestCoverage) {
+                bestCoverage = coverage;
+                bestPosition = candidate;
+            }
+        }
+        
+        // Restore original position if no improvement
+        dbs.setCurrentPosition(currentPositions.get(dbs));
+        return bestPosition;
+    }
+
+    /**
+     * Calculate how well drone covers its assigned users (coverage metric)
+     */
+    private double calculateDroneUsageCoverage(DroneBaseStation dbs, Set<MobileUser> users) {
+        if (users.isEmpty()) return 0.0;
+        
+        double totalCoverage = 0.0;
+        for (MobileUser user : users) {
+            if (!dbs.isUserInRange(user)) {
+                totalCoverage += 0.0; // User not in coverage
+            } else {
+                double distance = user.getCurrentPosition().distanceTo(dbs.getCurrentPosition());
+                double maxDistance = dbs.getCurrentCoverageRadius();
+                totalCoverage += 1.0 - (distance / maxDistance); // Coverage factor
+            }
+        }
+        
+        return totalCoverage / users.size();
+    }
+
+    /**
+     * Calculate Stackelberg game objective (fairness-based)
+     */
+    private double calculateStackelbergObjective(Map<Object, Double> loads) {
+        return AlphaFairnessLoadBalancer.calculateAlphaFairnessObjective(loads, 
+            AlphaFairnessLoadBalancer.FairnessPolicy.LATENCY_OPTIMAL);
+    }
+
+    /**
+     * Generate candidate positions near current position for local search
+     */
+    private List<Position3D> generateNearbyPositions(Position3D center, double radius) {
+        List<Position3D> candidates = new ArrayList<>();
+        
+        // Add positions in grid around center
+        double step = radius / 2;
+        for (double dx = -radius; dx <= radius; dx += step) {
+            for (double dy = -radius; dy <= radius; dy += step) {
+                for (double dh = -100; dh <= 100; dh += 50) {
+                    Position3D candidate = new Position3D(
+                        center.getX() + dx,
+                        center.getY() + dy,
+                        center.getZ() + dh
+                    );
+                    candidates.add(candidate);
+                }
+            }
+        }
+        
+        return candidates;
+    }
+    
     private LoadBalancingResult executeCooperativeGameWithResearchAlgorithms() {
         try {
             AlphaFairnessLoadBalancer.LoadBalancingResult alphResult = 
@@ -122,8 +254,34 @@ public class GameTheoreticLoadBalancer {
     }
     
     private LoadBalancingResult executeAuctionBasedWithResearchAlgorithms() {
+        try {
+            // Run VCG auction mechanism for truthful bidding
+            VCGAuctionMechanism auctionMechanism = new VCGAuctionMechanism(
+                droneStations, groundStations, users);
+            
+            VCGAuctionMechanism.VCGResult auctionResult = auctionMechanism.runAuction();
+            
+            // Convert to LoadBalancingResult format
+            Map<Object, Double> utilities = new HashMap<>();
+            for (Object station : auctionResult.assignments.keySet()) {
+                utilities.put(station, 1.0 - calculateStationLoad(station, auctionResult.assignments));
+            }
+            
+            // Calculate convergence based on revenue
+            boolean converged = auctionResult.totalRevenue > 0;
+            
+            return new LoadBalancingResult(auctionResult.assignments, utilities, 1, converged);
+            
+        } catch (Exception e) {
+            return executeAuctionBasedWithGreedyFallback();
+        }
+    }
+    
+    /**
+     * Greedy fallback for auction mechanism
+     */
+    private LoadBalancingResult executeAuctionBasedWithGreedyFallback() {
         Map<Object, Set<MobileUser>> assignments = new HashMap<>();
-        Map<Object, Double> utilities = new HashMap<>();
         
         initializeAssignments(assignments);
         
@@ -295,6 +453,14 @@ public class GameTheoreticLoadBalancer {
         
         assignments.put(gbs, bestAssignment);
         utilities.put(gbs, bestUtility);
+    }
+    
+    /**
+     * Calculate the total data load on a base station
+     */
+    private double calculateStationLoad(Object station, Map<Object, Set<MobileUser>> assignments) {
+        Set<MobileUser> assignedUsers = assignments.getOrDefault(station, new HashSet<>());
+        return assignedUsers.stream().mapToDouble(MobileUser::getDataRate).sum();
     }
     
     /**

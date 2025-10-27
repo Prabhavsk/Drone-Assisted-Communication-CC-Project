@@ -14,8 +14,8 @@
     <description>Implementation of drone-assisted communication for traffic load balancing using air-ground collaborative perspective with game theory</description>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <cloudsim.version>4.0.0</cloudsim.version>
         <junit.version>5.8.2</junit.version>
@@ -92,8 +92,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>11</source>
-                    <target>11</target>
+                    <source>21</source>
+                    <target>21</target>
+                    <compilerArgs>
+                        <arg>-Xlint:all</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
 
@@ -112,6 +115,19 @@
                 <configuration>
                     <mainClass>com.dronecomm.DroneAssistedCommunicationSimulation</mainClass>
                 </configuration>
+                <!-- Add a default execution bound to the 'verify' phase so 'mvn verify' will build and run the simulation -->
+                <executions>
+                    <execution>
+                        <id>run-main-on-verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.dronecomm.DroneAssistedCommunicationSimulation</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
             <!-- Maven Assembly Plugin for creating executable JAR -->

@@ -60,6 +60,11 @@ public class Position3D {
     }
     
     @Override
+    public int hashCode() {
+        return Double.hashCode(x) * 31 + Double.hashCode(y) * 31 + Double.hashCode(z);
+    }
+    
+    @Override
     public String toString() {
         return String.format("(%.2f, %.2f, %.2f)", x, y, z);
     }

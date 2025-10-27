@@ -4,15 +4,23 @@ import com.dronecomm.entities.DroneBaseStation;
 import com.dronecomm.entities.GroundBaseStation;
 import com.dronecomm.entities.MobileUser;
 
+/**
+ * Amplify-and-Forward relay model for drone-assisted communications.
+ * Models relay cooperation between users, drones, and macro base stations
+ * using AF relay protocol analysis.
+ */
 public class AFRelayModel {
     
+    /**
+     * Result of AF relay rate calculation including direct and relay paths.
+     */
     public static class AFRelayResult {
-        public final double directRate;
-        public final double relayRate;
-        public final double totalRate;
-        public final double gamma_is;
-        public final double gamma_ij;
-        public final double gamma_sj;
+        public final double directRate;    // Direct transmission rate
+        public final double relayRate;     // Relay transmission rate
+        public final double totalRate;     // Maximum of direct and relay
+        public final double gamma_is;      // User-to-MBS SNR
+        public final double gamma_ij;      // User-to-DBS SNR
+        public final double gamma_sj;      // DBS-to-MBS SNR
         
         public AFRelayResult(double directRate, double relayRate, double totalRate,
                            double gamma_is, double gamma_ij, double gamma_sj) {
@@ -25,6 +33,9 @@ public class AFRelayModel {
         }
     }
     
+    /**
+     * Calculate AF relay rate for a user-drone-MBS link.
+     */
     public static AFRelayResult calculateAFRelayRate(MobileUser ue, DroneBaseStation dbs, 
                                                    GroundBaseStation mbs, double ueTxPower, 
                                                    double dbsTxPower, double bandwidth) {
@@ -37,8 +48,10 @@ public class AFRelayModel {
         double gamma_sj = A2GChannelModel.calculateSNR(dbsTxPower, dbsToMbsChannelGain, bandwidth);
         double gamma_is = A2GChannelModel.calculateSNR(ueTxPower, ueToMbsChannelGain, bandwidth);
         
+        // Direct path: user → MBS
         double directRate = bandwidth * Math.log(1 + gamma_is) / Math.log(2);
         
+        // AF relay path: user → drone → MBS
         double afNumerator = gamma_is + (gamma_ij * gamma_sj);
         double afDenominator = 1 + gamma_ij + gamma_sj;
         double relayRate = (bandwidth / 2.0) * Math.log(1 + afNumerator / afDenominator) / Math.log(2);
@@ -48,6 +61,9 @@ public class AFRelayModel {
         return new AFRelayResult(directRate, relayRate, totalRate, gamma_is, gamma_ij, gamma_sj);
     }
     
+    /**
+     * Find best AF relay rate among all available drones.
+     */
     public static AFRelayResult calculateBestAFRelayRate(MobileUser ue, 
                                                        java.util.List<DroneBaseStation> dbsList,
                                                        GroundBaseStation mbs, double ueTxPower, 
@@ -55,6 +71,7 @@ public class AFRelayModel {
         AFRelayResult bestResult = null;
         double bestRate = 0.0;
         
+        // Consider direct transmission (no relay)
         AFRelayResult directOnly = new AFRelayResult(
             bandwidth * Math.log(1 + A2GChannelModel.calculateSNR(ueTxPower, 
                 A2GChannelModel.calculateUEToMBSChannelGain(ue, mbs), bandwidth)) / Math.log(2),
@@ -66,9 +83,9 @@ public class AFRelayModel {
             bestResult = directOnly;
         }
         
+        // Find best relay among drones
         for (DroneBaseStation dbs : dbsList) {
             AFRelayResult result = calculateAFRelayRate(ue, dbs, mbs, ueTxPower, dbsTxPower, bandwidth);
-            
             if (result.totalRate > bestRate) {
                 bestRate = result.totalRate;
                 bestResult = result;
@@ -78,6 +95,9 @@ public class AFRelayModel {
         return bestResult;
     }
     
+    /**
+     * Transmission strategy decision (direct or relay via best drone).
+     */
     public static class TransmissionStrategy {
         public final boolean useRelay;
         public final DroneBaseStation selectedRelay;
@@ -90,6 +110,9 @@ public class AFRelayModel {
         }
     }
     
+    /**
+     * Determine optimal transmission strategy for a user.
+     */
     public static TransmissionStrategy getOptimalStrategy(MobileUser ue, 
                                                         java.util.List<DroneBaseStation> dbsList,
                                                         GroundBaseStation mbs, double ueTxPower, 

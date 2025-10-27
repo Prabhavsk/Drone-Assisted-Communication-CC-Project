@@ -1,15 +1,9 @@
 package com.dronecomm.utils;
 
-import com.dronecomm.algorithms.GameTheoreticLoadBalancer;
-import com.dronecomm.entities.DroneBaseStation;
-import com.dronecomm.entities.GroundBaseStation;
-import com.dronecomm.entities.MobileUser;
-import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 
 /**
- * Analyzes simulation results and generates performance reports
+ * Analyzes simulation results and generates performance reports.
  */
 public class ResultsAnalyzer {
     
@@ -17,12 +11,17 @@ public class ResultsAnalyzer {
         System.out.println("=== SIMULATION RESULTS ANALYSIS ===");
         
         if (results.containsKey("algorithm_comparison")) {
-            analyzeAlgorithmComparison((Map<String, Object>) results.get("algorithm_comparison"));
+            analyzeAlgorithmComparison(getMapSafely(results, "algorithm_comparison"));
         }
         
         if (results.containsKey("performance_metrics")) {
-            analyzePerformanceMetrics((Map<String, Object>) results.get("performance_metrics"));
+            analyzePerformanceMetrics(getMapSafely(results, "performance_metrics"));
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getMapSafely(Map<String, Object> map, String key) {
+        return (Map<String, Object>) map.get(key);
     }
     
     private void analyzeAlgorithmComparison(Map<String, Object> comparison) {

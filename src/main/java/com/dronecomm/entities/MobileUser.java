@@ -20,14 +20,14 @@ import java.util.Random;
  */
 public class MobileUser {
     
-    private static int nextId = 10000; // Start from 10000 to distinguish from base stations
+    private static int nextId = 10000;
     private static final Random random = new Random();
     
     private final int id;
-    private String name; // User name/identifier
+    private String name;
     private Position3D currentPosition;
     private Position3D targetPosition;
-    private double movementSpeed; // m/s
+    private double movementSpeed;
     
     // Traffic characteristics
     private double dataRate; // bps - current data generation rate
@@ -336,8 +336,8 @@ public class MobileUser {
     public double getMaxDataRate() { return maxDataRate; }
 
     public int getHandoffCount() { 
-        // Return handoff count (could be tracked during simulation)
-        return (int) (random.nextDouble() * 5); // Placeholder implementation
+        // Return actual tracked handover count (deterministic)
+        return handoverCount;
     }
 
     public boolean isQoSViolated() {

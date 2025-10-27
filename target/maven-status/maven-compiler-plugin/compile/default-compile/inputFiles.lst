@@ -6,8 +6,6 @@ C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\utils\C
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\A2GChannelModel.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\analysis\ResearchPaperCharts.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\entities\GroundBaseStation.java
-C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\scenarios\ExtendedScenarios.java
-C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\analysis\ResearchPaperFigureGenerator.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\ExactPotentialGame.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\entities\MobileUser.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\analysis\ResultsExporter.java
@@ -15,15 +13,13 @@ C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorit
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\AdvancedGameTheory.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\PSCAAlgorithm.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\analysis\MathematicalAnalysis.java
-C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\EnhancedChannelModels.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\analysis\DetailedDataCollector.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\IntegratedResearchSimulation.java
+C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\VCGAuctionMechanism.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\GameTheoreticLoadBalancer.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\BaselineAlgorithms.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\analysis\ChartGenerator.java
-C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\analysis\NetworkSetupDiagram.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\enums\ScenarioType.java
-C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\analysis\AdvancedMetrics.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\algorithms\AGCTLBProblemFormulation.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\entities\DroneBaseStation.java
 C:\Users\prabh\Downloads\cc\DroneCommProject\src\main\java\com\dronecomm\enums\AlgorithmType.java

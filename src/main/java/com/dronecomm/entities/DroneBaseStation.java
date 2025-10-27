@@ -70,7 +70,7 @@ public class DroneBaseStation {
     
     public DroneBaseStation(double mips, int ram, long bandwidth, long storage) {
         this("Drone-" + nextId, mips, ram, bandwidth, storage, 
-             new Position3D(0, 0, 100), 100.0, 300.0); // Increased coverage from 50 to 300 meters
+             new Position3D(0, 0, 100), 100.0, 1500.0); // Increased coverage to 1500 meters for better user reach
     }
     
     // Position and movement methods

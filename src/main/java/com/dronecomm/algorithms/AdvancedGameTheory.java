@@ -3,7 +3,6 @@
 import com.dronecomm.entities.DroneBaseStation;
 import com.dronecomm.entities.GroundBaseStation;
 import com.dronecomm.entities.MobileUser;
-import com.dronecomm.entities.Position3D;
 
 import java.util.*;
 import java.util.stream.Collectors;

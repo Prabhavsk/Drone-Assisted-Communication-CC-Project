@@ -1,8 +1,5 @@
 package com.dronecomm.analysis;
 
-import com.dronecomm.entities.DroneBaseStation;
-import com.dronecomm.entities.GroundBaseStation;
-import com.dronecomm.entities.MobileUser;
 import com.dronecomm.enums.AlgorithmType;
 import com.dronecomm.enums.ScenarioType;
 

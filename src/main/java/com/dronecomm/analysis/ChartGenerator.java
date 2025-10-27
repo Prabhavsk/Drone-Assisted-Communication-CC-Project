@@ -8,7 +8,6 @@ import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.BarRenderer;
-import org.jfree.data.category.CategoryDataset;
 import org.jfree.data.category.DefaultCategoryDataset;
 
 import java.awt.*;
@@ -71,7 +70,8 @@ public class ChartGenerator {
         // QoS Violation chart removed - not in research paper
         generateUserSatisfactionChart(allResults);
         generateScalabilityChart(allResults);
-        generateAlgorithmPerformanceRadarChart(allResults);
+        // Disabled: Algorithm Performance Summary chart (4-column view with hardcoded demo values)
+        // generateAlgorithmPerformanceRadarChart(allResults);
     }
     
     private void generateThroughputComparisonChart(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {

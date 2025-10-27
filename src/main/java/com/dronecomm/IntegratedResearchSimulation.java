@@ -118,7 +118,8 @@ public class IntegratedResearchSimulation {
         System.out.println("      *** Results:");
         
         try {
-            
+            // Default: Use PROPORTIONAL_FAIR (α=1) for basic Nash simulation
+            // Note: Table 1 will run separate instances for α=0,1,2,10 to get different assignments
             AGCTLBProblemFormulation.ProblemConstraints constraints = 
                 new AGCTLBProblemFormulation.ProblemConstraints(
                     0, 5000, 0, 5000, 50, 300, 0.8,

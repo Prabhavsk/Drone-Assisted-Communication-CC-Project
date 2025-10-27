@@ -8,40 +8,30 @@ import com.dronecomm.algorithms.AlphaFairnessLoadBalancer.FairnessPolicy;
 import java.util.*;
 
 /**
- * Penalty-based Successive Convex Approximation (P-SCA) Algorithm
+ * Penalty-based Successive Convex Approximation (P-SCA) Algorithm.
  * 
- * This class implements the P-SCA algorithm from the research paper for solving
- * the user association subproblem with binary variable relaxation:
- * 
- * - Binary variable relaxation: xij  xij in [0,1]
- * - Penalty term: (1/lambda) * Sum(xij - xij^2) 
- * - First-order Taylor approximation for convexification
- * - Double-loop optimization with lambda := lambda
- * 
- * Solves the relaxed problem:
- * min phialpha(rho) + (1/lambda) * Sum(xij - xij^2)
- * s.t. Sumxij = 1, 0 <= xij <= 1, capacity constraints
+ * Solves user association with binary variable relaxation and convex approximation.
+ * Uses penalty methods to convert the MINLP problem into iterative convex sub-problems.
  */
 public class PSCAAlgorithm {
     
-    // Algorithm parameters
-    private static final double INITIAL_LAMBDA = 1.0;      // Initial penalty parameter
-    private static final double LAMBDA_SCALING = 0.5;      //  scaling factor
-    private static final double CONVERGENCE_TOL = 1e-6;    // Convergence tolerance
-    private static final int MAX_OUTER_ITERATIONS = 50;    // Max outer loop iterations
-    private static final int MAX_INNER_ITERATIONS = 100;   // Max inner loop iterations
-    private static final double MIN_LAMBDA = 1e-6;         // Minimum lambda value
+    private static final double INITIAL_LAMBDA = 1.0;
+    private static final double LAMBDA_SCALING = 0.5;
+    private static final double CONVERGENCE_TOL = 1e-6;
+    private static final int MAX_OUTER_ITERATIONS = 50;
+    private static final int MAX_INNER_ITERATIONS = 100;
+    private static final double MIN_LAMBDA = 1e-6;
     
     /**
-     * Result of P-SCA optimization
+     * P-SCA optimization result containing assignments, convergence info, and metrics.
      */
     public static class PSCAResult {
-        public final Map<MobileUser, Map<Object, Double>> relaxedAssignments; // xij values
-        public final Map<Object, Set<MobileUser>> binaryAssignments;          // Final binary assignments
-        public final double objectiveValue;                                   // Final objective
-        public final int outerIterations;                                     // Convergence iterations
-        public final boolean converged;                                       // Convergence status
-        public final Map<Object, Double> finalLoads;                         // Final load distribution
+        public final Map<MobileUser, Map<Object, Double>> relaxedAssignments;
+        public final Map<Object, Set<MobileUser>> binaryAssignments;
+        public final double objectiveValue;
+        public final int outerIterations;
+        public final boolean converged;
+        public final Map<Object, Double> finalLoads;
         
         public PSCAResult(Map<MobileUser, Map<Object, Double>> relaxedAssignments,
                          Map<Object, Set<MobileUser>> binaryAssignments,
