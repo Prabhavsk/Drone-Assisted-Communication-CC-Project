@@ -43,11 +43,11 @@ If you do not have Java and Maven installed, follow these steps:
 ## Running the Simulation
 1. Compile the project:
    ```bash
-   mvn compile
+   mvn clean compile
    ```
 2. Run the main simulation class:
    ```bash
-   mvn exec:java -Dexec.mainClass="com.dronecomm.DroneAssistedCommunicationSimulation"
+   mvn clean verify
    ```
 
 If the above command does not work, ensure the `pom.xml` file is correctly configured and all dependencies are installed.
