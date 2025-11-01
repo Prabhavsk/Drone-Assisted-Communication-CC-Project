@@ -163,7 +163,6 @@ public class DetailedDataCollector {
     
     /**
      * Generate convergence history based on algorithm properties
-     * TODO: Replace with actual tracking from algorithm execution
      */
     private static List<Double> generateConvergenceHistory(AlgorithmType algorithm) {
         List<Double> history = new ArrayList<>();

@@ -363,37 +363,6 @@ public class ResearchPaperCharts {
         saveChart(chart, "Figure5_TransmissionDelay", 1200, 900);
     }
 
-    /**
-     * Generate Figure 6: Convergence Behavior
-     * Line chart showing convergence over iterations
-     */
-    public void generateConvergenceBehaviorFigure() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-
-        int[] iterations = {0, 5, 10, 15, 20, 25, 30};
-
-        double[] nashConvergence = {10.0, 7.5, 5.2, 3.8, 2.9, 2.1, 2.0};
-        double[] stackelbergConvergence = {12.0, 8.1, 5.5, 4.0, 3.2, 2.8, 2.7};
-        double[] cooperativeConvergence = {15.0, 10.2, 6.8, 4.5, 3.1, 2.3, 2.0};
-
-        for (int i = 0; i < iterations.length; i++) {
-            dataset.addValue(nashConvergence[i], "Nash Equilibrium", String.valueOf(iterations[i]));
-            dataset.addValue(stackelbergConvergence[i], "Stackelberg Game", String.valueOf(iterations[i]));
-            dataset.addValue(cooperativeConvergence[i], "Cooperative Game", String.valueOf(iterations[i]));
-        }
-
-        JFreeChart chart = ChartFactory.createLineChart(
-            "Convergence Behavior",
-            "Iteration",
-            "Objective Function Value",
-            dataset,
-            PlotOrientation.VERTICAL,
-            true, true, false
-        );
-
-        customizeConvergenceChart(chart);
-        saveChart(chart, "Figure6_ConvergenceBehavior", 1600, 1000);
-    }
     
     /**
      * Generate Table 1: Simulation Parameters
@@ -467,38 +436,6 @@ public class ResearchPaperCharts {
         saveTable(table.toString(), "Table2_PerformanceSummary");
     }
     
-    /**
-     * Generate Figure 3: Convergence Analysis
-     * Line chart showing algorithm convergence over iterations
-     */
-    public void generateConvergenceAnalysisFigure() {
-        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
-        
-        int[] iterations = {0, 5, 10, 15, 20, 25, 30};
-        
-        // Simulated convergence data for different algorithms
-        double[] nashObjective = {10.0, 7.5, 5.2, 3.8, 2.9, 2.1, 2.0};
-        double[] stackelbergObjective = {12.0, 8.1, 5.5, 4.0, 3.2, 2.8, 2.7};
-        double[] cooperativeObjective = {15.0, 10.2, 6.8, 4.5, 3.1, 2.3, 2.0};
-        
-        for (int i = 0; i < iterations.length; i++) {
-            dataset.addValue(nashObjective[i], "Nash Equilibrium", String.valueOf(iterations[i]));
-            dataset.addValue(stackelbergObjective[i], "Stackelberg Game", String.valueOf(iterations[i]));
-            dataset.addValue(cooperativeObjective[i], "Cooperative Game", String.valueOf(iterations[i]));
-        }
-        
-        JFreeChart chart = ChartFactory.createLineChart(
-            "Algorithm Convergence Analysis",
-            "Iteration",
-            "Objective Function Value",
-            dataset,
-            PlotOrientation.VERTICAL,
-            true, true, false
-        );
-        
-        customizeConvergenceChart(chart);
-        saveChart(chart, "Figure3_ConvergenceAnalysis", 1600, 1000);
-    }
     
     // Chart customization methods
     private void customizeSystemModelChart(JFreeChart chart) {
@@ -609,54 +546,7 @@ public class ResearchPaperCharts {
         }
     }
     
-    private void customizeConvergenceChart(JFreeChart chart) {
-        CategoryPlot plot = chart.getCategoryPlot();
-        plot.setBackgroundPaint(Color.WHITE);
-        plot.setDomainGridlinePaint(new Color(220, 220, 220));
-        plot.setRangeGridlinePaint(new Color(220, 220, 220));
-        plot.setOutlineVisible(true);
-        plot.setOutlinePaint(Color.BLACK);
-        plot.setOutlineStroke(new BasicStroke(1.0f));
-        
-        LineAndShapeRenderer renderer = (LineAndShapeRenderer) plot.getRenderer();
-        renderer.setDefaultShapesVisible(true);
-        renderer.setDefaultShapesFilled(true);
-        
-        Color[] colors = {
-            new Color(31, 119, 180),   // Blue
-            new Color(255, 127, 14),   // Orange
-            new Color(44, 160, 44)     // Green
-        };
-        
-        // Enhanced shapes for different series
-        Shape[] shapes = {
-            new Ellipse2D.Double(-4, -4, 8, 8),  // Circle
-            new Rectangle(-4, -4, 8, 8),          // Square
-            new Polygon(new int[]{0, -4, 4}, new int[]{-5, 4, 4}, 3)  // Triangle
-        };
-        
-        for (int i = 0; i < colors.length; i++) {
-            renderer.setSeriesPaint(i, colors[i]);
-            renderer.setSeriesStroke(i, new BasicStroke(2.5f));
-            renderer.setSeriesShape(i, shapes[i % shapes.length]);
-        }
-        
-        // Enhanced fonts
-        chart.getTitle().setFont(new Font("Arial", Font.BOLD, 20));
-        chart.getTitle().setPaint(Color.BLACK);
-        
-        plot.getDomainAxis().setLabelFont(new Font("Arial", Font.BOLD, 16));
-        plot.getDomainAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 13));
-        
-        plot.getRangeAxis().setLabelFont(new Font("Arial", Font.BOLD, 16));
-        plot.getRangeAxis().setTickLabelFont(new Font("Arial", Font.PLAIN, 13));
-        
-        // Legend styling
-        if (chart.getLegend() != null) {
-            chart.getLegend().setItemFont(new Font("Arial", Font.PLAIN, 13));
-            chart.getLegend().setFrame(new org.jfree.chart.block.BlockBorder(Color.BLACK));
-        }
-    }
+
     
     private void customizeEnergyChart(JFreeChart chart) {
         XYPlot plot = (XYPlot) chart.getPlot();
@@ -1276,10 +1166,8 @@ public class ResearchPaperCharts {
         }
         generateTrafficLoadDistributionFigure(scenarioResults);          // Figure 3 with real loads!
         generateEnergyEfficiencyFigure(allResults);                      // Figure 4: Energy Efficiency 
-        generateTransmissionDelayFigure(scenarioResults);                // Figure 5: Transmission Delay
-        generateConvergenceBehaviorFigure();                             // Figure 6: Convergence Behavior
-        generateAlgorithmComparisonFigure(allResults);                   // Algorithm Performance Comparison
-        generateConvergenceAnalysisFigure();                             // Convergence Analysis
+        generateTransmissionDelayFigure(scenarioResults);                  // Figure 6: Convergence Behavior
+        generateAlgorithmComparisonFigure(allResults);                   // Convergence Analysis
         generateSimulationParametersTable();                             // Simulation Parameters Table
         generatePerformanceSummaryTable(allResults);                     // Table 2
         

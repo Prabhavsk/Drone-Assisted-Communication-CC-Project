@@ -1475,22 +1475,16 @@ public class DroneAssistedCommunicationSimulation {
         System.out.println("            - Auction Mechanism (VCG - Vickrey-Clarke-Groves):");
         System.out.println("              - Auction Type: Second-price sealed bid");
         System.out.println("              - Winner Determination: Truthful mechanism");
-        System.out.println("              - Individual Rationality: " + String.format("%.1f%%", 96.0 + Math.random() * 3));
         
         System.out.println("            - AF Relay Model (Auction Mechanism):");
         System.out.println("              - Bidding Strategy: Second-price sealed bid");
         System.out.println("              - Winner Selection: Optimal relay selection");
-        System.out.println("              - Social Welfare: " + String.format("%.2f", 1.6 + Math.random() * 0.6));
         
         System.out.println("            - A2G Channel Model (Dynamic):");
         System.out.println("              - Channel State Information: Real-time CSI feedback");
-        System.out.println("              - Adaptive Modulation: " + String.format("%.0f-QAM avg", 16 + Math.random() * 48));
-        System.out.println("              - Link Adaptation Rate: " + String.format("%.1f Hz", 50 + Math.random() * 30));
         
         System.out.println("            - Market Equilibrium:");
         System.out.println("              - Price Update Rule: Gradient ascent");
-        System.out.println("              - Market Equilibrium: " + String.format("%.1f%%", 88.0 + Math.random() * 10));
-        System.out.println("              - Revenue Efficiency: " + String.format("%.2f", 0.92 + Math.random() * 0.06));
         
         System.out.println("            - Incentive Compatibility:");
         System.out.println("              - Truthful Mechanism: Yes (VCG mechanism)");

@@ -1,0 +1,14 @@
+TABLE 1
+LOAD METRIC VERSUS DIFFERENT α
+======================================================================
+
+Metric                              | α=0    | α=1    | α=2    | α=10
+---------------------------------------------------------------------------
+Σ ρ_j (sum of loads)                |   1.80 |   1.57 |   1.70 |   1.57 |
+-Σ log(1 - ρ_j) (log fairness)      |   2.60 |   2.11 |   2.25 |   1.91 |
+Σ ρ_j/(1-ρ_j) (ratio sum)           |   4.12 |   3.01 |   3.15 |   2.41 |
+max{ρ_j} (max load)                 |   0.65 |   0.57 |   0.56 |   0.46 |
+===========================================================================
+Note: ρ_j represents the traffic load (normalized to 0-1) on base station j
+      α is the fairness parameter in α-fairness optimization
+      Higher α values emphasize fairness over efficiency
