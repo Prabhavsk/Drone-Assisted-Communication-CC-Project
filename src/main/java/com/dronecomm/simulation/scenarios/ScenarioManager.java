@@ -3,7 +3,10 @@ package com.dronecomm.simulation.scenarios;
 import java.util.Map;
 
 /**
- * Manages different simulation scenarios for drone communication systems
+ * Scenario manager — runs a set of preset scenarios for quick experimentation.
+ *
+ * Lightweight orchestration used by higher-level runners. Each scenario is a
+ * small script that prepares inputs and calls the simulation runner.
  */
 public class ScenarioManager {
     

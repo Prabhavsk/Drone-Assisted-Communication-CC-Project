@@ -114,6 +114,8 @@ target/
 2. Executes `public static void main(String[] args)` method
 3. Simulation begins
 
+Note: Although `TECHNOLOGY_STACK.md` documents CloudSim Plus as an available framework, the repository's Java sources do not currently import CloudSim classes. The default Maven run (`mvn clean verify`) executes the simulation using the project's own classes and does not require CloudSim. Add CloudSim to `pom.xml` only if you intentionally use CloudSim-specific code.
+
 ---
 
 # EXECUTION FLOW: INSIDE THE SIMULATION

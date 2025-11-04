@@ -8,8 +8,13 @@ import com.dronecomm.entities.Position3D;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Coordinator for game-theoretic load balancing.
+ *
+ * Wraps the research algorithms (Nash, Stackelberg, Cooperative, Auction)
+ * and provides safe fallbacks so the simulator runs when solvers are absent.
+ */
 public class GameTheoreticLoadBalancer {
-    
     private List<DroneBaseStation> droneStations;
     private List<GroundBaseStation> groundStations;
     private List<MobileUser> users;
@@ -132,7 +137,8 @@ public class GameTheoreticLoadBalancer {
     }
 
     /**
-     * Simple fallback implementation for Stackelberg Game load balancing.
+     * Greedy fallback used when the Stackelberg research solver isn't available.
+     * Keeps behavior predictable while preserving the simulation flow.
      */
     private LoadBalancingResult executeSimpleStackelbergGame() {
         // Simple greedy assignment as a fallback
@@ -278,7 +284,8 @@ public class GameTheoreticLoadBalancer {
     }
     
     /**
-     * Greedy fallback for auction mechanism
+     * Greedy fallback for the auction mechanism in case the full auction
+     * implementation fails. This ensures users are still assigned.
      */
     private LoadBalancingResult executeAuctionBasedWithGreedyFallback() {
         Map<Object, Set<MobileUser>> assignments = new HashMap<>();

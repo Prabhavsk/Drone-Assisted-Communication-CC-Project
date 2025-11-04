@@ -10,24 +10,13 @@ import com.dronecomm.utils.*;
 import java.util.*;
 
 /**
- * Complete implementation of the drone-assisted communication research paper:
- * "Game-Theoretic Load Balancing in Drone-Assisted Communication Networks"
- * 
- * This comprehensive simulation implements all aspects of the research including:
- * - All 4 game-theoretic algorithms (Nash Equilibrium, Stackelberg, Cooperative, Auction)
- * - Multiple network scenarios with varying user densities and mobility patterns
- * - Comprehensive performance analysis and metrics collection
- * - Comparison between different load balancing strategies
- * - Energy optimization for drone base stations
- * - QoS guarantee evaluation
- * 
- * The simulation reproduces the exact experimental setup described in the paper
- * to validate the effectiveness of game-theoretic approaches for load balancing.
+ * Main simulation runner.
+ * Orchestrates scenarios, algorithms, metric collection, and result export.
  */
 
 public class DroneAssistedCommunicationSimulation {
     
-    // Simulation parameters matching the research paper
+    // Simulation parameters used by the runner
     private static final int SIMULATION_AREA_WIDTH = 5000;  // meters
     private static final int SIMULATION_AREA_HEIGHT = 5000; // meters
     private static final double SIMULATION_TIME = 3600.0;   // 1 hour simulation
@@ -70,7 +59,8 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Test all new research paper components
+     * Quick sanity checks for core research components.
+     * Creates sample entities and runs basic initialization checks.
      */
     public void testNewResearchComponents() {
         System.out.println("Testing New Research Paper Components...");
@@ -114,7 +104,8 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Runs the complete simulation covering all aspects of the research paper
+     * Run full experiment suite across scenarios, user counts, and algorithms.
+     * Collects metrics and exports results and charts.
      */
     public void runCompleteSimulation() {
         System.out.println("Starting comprehensive simulation of all paper scenarios...");
@@ -226,8 +217,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Runs a single simulation with a pre-created topology
-     * (Used to test multiple algorithms on the same topology)
+     * Run a simulation using a provided topology so multiple algorithms share the same setup.
      */
     private SimulationResults runSingleSimulationWithTopology(ScenarioType scenario, int userCount, 
             AlgorithmType algorithm, List<DroneBaseStation> droneStations, 
@@ -258,7 +248,7 @@ public class DroneAssistedCommunicationSimulation {
     }
 
     /**
-     * Runs a single simulation with specified parameters (LEGACY - creates new topology per call)
+     * Legacy helper: runs a simulation by creating a fresh topology for the given parameters.
      */
     private SimulationResults runSingleSimulation(ScenarioType scenario, int userCount, AlgorithmType algorithm) {
         // Reset metrics for this run
@@ -292,7 +282,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Run simulation for baseline algorithms
+     * Run time-stepped simulation using a baseline (non-game-theoretic) assignment.
      */
     private SimulationResults runBaselineSimulation(List<DroneBaseStation> droneStations, 
             List<GroundBaseStation> groundStations, List<MobileUser> users, 
@@ -354,7 +344,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Creates ground base stations according to paper specifications
+     * Build ground base stations with predefined positions and coverage.
      */
     private List<GroundBaseStation> createGroundStations() {
         List<GroundBaseStation> stations = new ArrayList<>();
@@ -375,7 +365,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Creates drone base stations with scenario-specific configurations
+     * Create drone base stations and initialize position and energy based on scenario.
      */
     private List<DroneBaseStation> createDroneStations(ScenarioType scenario) {
         List<DroneBaseStation> drones = new ArrayList<>();
@@ -402,7 +392,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Determines initial drone positions based on scenario requirements
+     * Pick initial drone position for a given index and scenario.
      */
     private Position3D getInitialDronePosition(int droneIndex, ScenarioType scenario) {
         double x, y, z = 150.0; // Standard drone altitude
@@ -432,7 +422,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Creates mobile users according to scenario specifications
+     * Generate mobile users with positions, movement patterns, and data rates.
      */
     private List<MobileUser> createMobileUsers(ScenarioType scenario, int userCount) {
         List<MobileUser> users = new ArrayList<>();
@@ -455,7 +445,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Generates user positions based on scenario type
+     * Generate a user's position according to the scenario rules.
      */
     private Position3D generateUserPosition(ScenarioType scenario, int userIndex, int totalUsers) {
         switch (scenario) {
@@ -475,7 +465,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Generates positions for hotspot scenario with concentrated user areas
+     * Generate a position near hotspot centers or randomly for distributed users.
      */
     private Position3D generateHotspotPosition(int userIndex, int totalUsers) {
         // Define hotspot centers
@@ -501,7 +491,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Determines movement pattern based on scenario
+     * Choose a user's movement pattern based on the scenario and index.
      */
     private MobileUser.MovementPattern getMovementPattern(ScenarioType scenario, int userIndex) {
         switch (scenario) {
@@ -536,9 +526,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Determines data rate requirements based on scenario and user characteristics
-     * Note: Data rate assignment is randomized across users to prevent spatial clustering
-     * in network topology visualizations (colors represent data rates)
+     * Assign a data rate to a user based on scenario and randomness to avoid clustering.
      */
     private double getDataRateForUser(ScenarioType scenario, int userIndex, int totalUsers) {
         switch (scenario) {
@@ -567,7 +555,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Maps internal algorithm type to GameTheoreticLoadBalancer game type
+     * Convert AlgorithmType to GameTheoreticLoadBalancer.GameType.
      */
     private GameTheoreticLoadBalancer.GameType mapGameType(AlgorithmType algorithm) {
         switch (algorithm) {
@@ -580,7 +568,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Runs the main simulation loop with time stepping
+     * Run time-stepped simulation for game-theoretic algorithms.
      */
     private SimulationResults runTimeSteppedSimulation(GameTheoreticLoadBalancer loadBalancer,
             List<DroneBaseStation> droneStations, List<GroundBaseStation> groundStations,
@@ -649,7 +637,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Updates user positions based on their movement patterns
+     * Advance each user's position by the given time step.
      */
     private void updateUserPositions(List<MobileUser> users, double timeStep) {
         for (MobileUser user : users) {
@@ -658,7 +646,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Execute baseline algorithm assignment
+     * Execute the chosen baseline assignment method and wrap results for use by the simulation.
      */
     private GameTheoreticLoadBalancer.LoadBalancingResult executeBaselineAlgorithm(
             AlgorithmType algorithm, List<DroneBaseStation> droneStations, 
@@ -708,7 +696,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Updates drone positions for mobile drone strategies
+     * Update drone positions (placeholder — currently static).
      */
     private void updateDronePositions(List<DroneBaseStation> drones, double timeStep) {
         // Implement drone mobility strategy if applicable
@@ -720,7 +708,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Updates drone energy levels based on operation and communication load
+     * Update drones' energy consumption for the time step.
      */
     private void updateDroneEnergy(List<DroneBaseStation> drones, double timeStep) {
         for (DroneBaseStation drone : drones) {
@@ -729,7 +717,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Collects metrics for current time step
+     * Compute and record metrics for the current time step using actual assignments.
      */
     private void collectTimeStepMetrics(double currentTime, List<DroneBaseStation> droneStations,
             List<GroundBaseStation> groundStations, List<MobileUser> users,
@@ -825,7 +813,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Calculates dynamic time step based on scenario complexity and algorithm overhead
+     * Determine an adaptive time step based on scenario, algorithm, and user density.
      */
     private double calculateDynamicTimeStep(int userCount, ScenarioType scenario, AlgorithmType algorithm) {
         double baseTimeStep = 1.0;
@@ -1091,7 +1079,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Prints results for a single algorithm test
+     * Print summary metrics for a single algorithm run.
      */
     private void printAlgorithmResults(AlgorithmType algorithm, SimulationResults results) {
         // Store results for use in detailed output methods
@@ -1109,7 +1097,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Prints detailed research algorithm-specific outputs
+     * Print extra details when the algorithm is a research/game-theoretic type.
      */
     private void printResearchAlgorithmDetails(AlgorithmType algorithm, SimulationResults results) {
         if (algorithm.isGameTheoretic()) {
@@ -1140,7 +1128,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Prints analysis for baseline algorithms
+     * Show simple analytical summaries for baseline algorithms.
      */
     private void printBaselineAlgorithmAnalysis(AlgorithmType algorithm, SimulationResults results) {
         // Import the complexity analysis
@@ -1200,8 +1188,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Helper methods to get research parameter values from actual simulation data
-     * These pull values from lastSimulationResults instead of hardcoding
+     * Helper methods to derive research parameter values from the last simulation data.
      */
     private double getConstraintSatisfactionValue() {
         if (lastSimulationResults != null) {
@@ -1580,7 +1567,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Class to store and analyze simulation results
+     * Container for collected simulation samples and final state.
      */
     private static class SimulationResults {
         private final List<Double> throughputSamples = new ArrayList<>();
@@ -1647,7 +1634,7 @@ public class DroneAssistedCommunicationSimulation {
     }
     
     /**
-     * Deep copy methods to ensure each algorithm gets independent entity instances
+     * Create shallow deep-copies of entities so each algorithm runs on independent instances.
      */
     private List<DroneBaseStation> deepCopyDrones(List<DroneBaseStation> original) {
         List<DroneBaseStation> copy = new ArrayList<>();

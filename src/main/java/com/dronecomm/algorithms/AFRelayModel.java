@@ -5,9 +5,10 @@ import com.dronecomm.entities.GroundBaseStation;
 import com.dronecomm.entities.MobileUser;
 
 /**
- * Amplify-and-Forward relay model for drone-assisted communications.
- * Models relay cooperation between users, drones, and macro base stations
- * using AF relay protocol analysis.
+ * Amplify-and-Forward (AF) relay helpers.
+ *
+ * Compute direct, relay and combined rates and pick the best relay drone.
+ * Designed to be clear and reproducible for experiments.
  */
 public class AFRelayModel {
     

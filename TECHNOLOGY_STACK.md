@@ -8,7 +8,6 @@
 
  - Language: Java 21 (LTS)
  - Build: Maven (tested with 3.11.0)
- - Simulation engine: CloudSim Plus 4.0.0
  - Math: Apache Commons Math 3.6.1
  - JSON: Jackson 2.15.2
  - Charts: JFreeChart 1.5.3
@@ -26,7 +25,7 @@
 
  ## Why these choices (short rationale)
 
- - CloudSim Plus: a modern, Java-friendly discrete-event simulation library great for network and resource modeling.
+
  - Commons Math: reliable linear algebra, statistics and optimization utilities used by the algorithm implementations.
  - Jackson: fast, standard JSON binding for config + results.
  - JFreeChart: high-quality charts for paper figures and analysis outputs.
@@ -36,7 +35,6 @@
 
  ## Key dependencies and where they’re used
 
- - CloudSim Plus 4.0.0 — simulation core (examples: `DroneAssistedCommunicationSimulation.java`, `IntegratedResearchSimulation.java`).
  - Apache Commons Math 3.6.1 — algorithms and analysis (`A2GChannelModel.java`, `PSCAAlgorithm.java`, `MathematicalAnalysis.java`).
  - Jackson 2.15.2 — configuration parsing and results export (`ConfigurationLoader.java`, `ResultsWriter.java`).
  - JFreeChart 1.5.3 — chart building for publication figures (`ChartGenerator.java`, `ResearchPaperCharts.java`).
@@ -175,6 +173,8 @@ The DroneComm project uses a **modern Java-based technology stack** with careful
 - **Language**: Java 21 (Latest LTS)
 - **Build Tool**: Apache Maven 3.x
 - **Simulation Framework**: CloudSim Plus 4.0.0
+  
+  Note: CloudSim Plus is listed as a supported simulation framework in this document. A quick code search shows there are no direct imports of CloudSim classes under `src/main/java` in this repository — CloudSim is documented as an option/extension but is not required for the default simulation run. If you want to enable CloudSim-specific features, add the dependency to `pom.xml` and wire the CloudSim entry points into the simulation classes.
 - **Visualization**: JFreeChart 1.5.3
 - **Data Processing**: Jackson 2.15.2
 - **Mathematical Computation**: Apache Commons Math 3.6.1

@@ -1,5 +1,9 @@
 package com.dronecomm.enums;
 
+/**
+ * Describes the different simulation scenarios used in experiments.
+ * Each enum value carries a short human-readable description.
+ */
 public enum ScenarioType {
     LOW_MOBILITY("Low Mobility - Static and slow moving users"),
     URBAN_HOTSPOT("Urban Hotspot - Dense user concentration"),

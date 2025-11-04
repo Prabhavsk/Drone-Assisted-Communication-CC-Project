@@ -8,17 +8,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Vickrey-Clarke-Groves (VCG) Auction Mechanism
- * 
- * Implements truthful mechanism where:
- * - Users bid valuations (truthful bidding is dominant strategy)
- * - Stations determine winners to maximize social welfare
- * - Winners pay Vickrey prices (second-highest bidder value)
- * 
- * Properties:
- * - Strategy-proof: Truth-telling is dominant strategy
- * - Individually rational: Winners get positive surplus
- * - Efficient: Maximizes total welfare Σ bid[i][j]
+ * VCG auction helper.
+ *
+ * Collect valuations, run a simple winner-determination and compute Vickrey prices.
+ * Used as a clear, truthful baseline for experiments.
  */
 public class VCGAuctionMechanism {
     

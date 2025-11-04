@@ -8,14 +8,12 @@ import com.dronecomm.enums.AlgorithmType;
 import java.util.*;
 
 /**
- * Collects detailed metrics from simulation for research paper visualization.
- * Hooks into simulation data to extract loads, positions, and α-fairness metrics.
+ * Prepare detailed simulation metrics (positions, loads, assignments, convergence)
+ * for charting and tables in a compact, consumable form.
  */
 public class DetailedDataCollector {
     
-    /**
-     * Extract detailed metrics from simulation results for research paper charts.
-     */
+    /** Populate detailed fields in the export result for plotting and tables. */
     public static void populateDetailedMetrics(
             ResultsExporter.SimulationResult exportResult,
             List<DroneBaseStation> drones,

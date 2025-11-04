@@ -21,8 +21,8 @@ import java.nio.file.Paths;
 import java.util.Map;
 
 /**
- * Handles writing simulation results to files and generating visualizations.
- * Supports CSV, JSON output and chart generation.
+ * Exports simulation outputs (JSON, CSV, text) and generates optional charts.
+ * Small, reusable helper used by runners to save results and visualizations.
  */
 public class ResultsWriter {
     

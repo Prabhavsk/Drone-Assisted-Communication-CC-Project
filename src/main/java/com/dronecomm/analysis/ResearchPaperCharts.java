@@ -27,7 +27,8 @@ import java.util.List;
 import com.dronecomm.utils.ConfigurationLoader;
 
 /**
- * Includes system model, network topology, performance comparisons, and convergence analysis.
+ * Generate publication-quality charts and tables from simulation outputs.
+ * Includes system model figures, topology plots and performance comparisons.
  */
 public class ResearchPaperCharts {
     private static final String CHARTS_DIR = "results/research_paper_figures";

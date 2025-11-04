@@ -6,11 +6,10 @@ import java.util.Set;
 import java.util.HashSet;
 
 /**
- * Represents a Drone Base Station (DBS) in the air-ground collaborative network.
- * 
- * A DBS is a mobile aerial platform that provides wireless communication services
- * to mobile users. It operates at varying altitudes and can dynamically adjust
- * its position to optimize network coverage and load distribution.
+ * Drone Base Station (DBS).
+ *
+ * Mobile aerial access point with position, energy and simple connection helpers
+ * used by the simulator. Intent-focused comments only — no behavior changes.
  */
 public class DroneBaseStation {
     
@@ -58,9 +57,9 @@ public class DroneBaseStation {
         this.maxEnergyCapacity = energyCapacity;
         this.currentEnergyLevel = energyCapacity;
         this.coverageRadius = coverageRadius;
-        this.maxSpeed = 15.0; // 15 m/s typical for drones
-        this.maxAltitude = 300.0; // 300m max altitude
-        this.energyConsumptionRate = 1.0; // 1 unit per time unit
+    this.maxSpeed = 15.0; // typical max speed (m/s)
+    this.maxAltitude = 300.0; // maximum altitude (m)
+    this.energyConsumptionRate = 1.0; // base consumption rate
         this.connectedUsers = new HashSet<>();
         this.currentLoad = 0.0;
         this.isActive = true;

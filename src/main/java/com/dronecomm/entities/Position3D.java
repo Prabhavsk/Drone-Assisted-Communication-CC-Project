@@ -1,8 +1,8 @@
 package com.dronecomm.entities;
 
 /**
- * Represents a 3D position with x, y coordinates and altitude z.
- * Used for positioning drones, base stations, and mobile users in the simulation.
+ * Simple immutable-ish 3D position used by entities.
+ * Provides small helpers for 2D/3D distance calculations.
  */
 public class Position3D {
     private double x; // meters

@@ -9,7 +9,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Implementation of baseline algorithms for comparison with game-theoretic approaches
+ * Baseline assignment strategies for comparison.
+ *
+ * Includes random, round-robin, greedy, nearest-neighbor, load-balanced and signal-strength heuristics.
  */
 public class BaselineAlgorithms {
     
@@ -25,9 +27,7 @@ public class BaselineAlgorithms {
         this.users = new ArrayList<>(users);
     }
     
-    /**
-     * Random Assignment: Randomly assigns users to available base stations
-     */
+    /** Randomly assigns users to any available base station. */
     public BaselineResult randomAssignment() {
         Map<Object, Set<MobileUser>> assignments = new HashMap<>();
         initializeAssignments(assignments);
@@ -45,9 +45,7 @@ public class BaselineAlgorithms {
         return new BaselineResult("Random Assignment", assignments, calculateUtility(assignments));
     }
     
-    /**
-     * Round Robin: Assigns users to stations in round-robin fashion
-     */
+    /** Assign users to stations in round-robin order (capacity-aware). */
     public BaselineResult roundRobinAssignment() {
         Map<Object, Set<MobileUser>> assignments = new HashMap<>();
         initializeAssignments(assignments);
@@ -78,9 +76,7 @@ public class BaselineAlgorithms {
         return new BaselineResult("Round Robin", assignments, calculateUtility(assignments));
     }
     
-    /**
-     * Greedy Assignment: Assigns each user to the station with highest utility
-     */
+    /** Greedy assignment: each user goes to the station giving highest utility. */
     public BaselineResult greedyAssignment() {
         Map<Object, Set<MobileUser>> assignments = new HashMap<>();
         initializeAssignments(assignments);
@@ -107,9 +103,7 @@ public class BaselineAlgorithms {
         return new BaselineResult("Greedy Assignment", assignments, calculateUtility(assignments));
     }
     
-    /**
-     * Nearest Neighbor: Assigns users to the geographically closest station
-     */
+    /** Assign users to the geographically nearest station (if in range). */
     public BaselineResult nearestNeighborAssignment() {
         Map<Object, Set<MobileUser>> assignments = new HashMap<>();
         initializeAssignments(assignments);
@@ -136,9 +130,7 @@ public class BaselineAlgorithms {
         return new BaselineResult("Nearest Neighbor", assignments, calculateUtility(assignments));
     }
     
-    /**
-     * Load Balanced: Assigns users to minimize load imbalance across stations
-     */
+    /** Assign users to improve load balance across stations (greedy heuristic). */
     public BaselineResult loadBalancedAssignment() {
         Map<Object, Set<MobileUser>> assignments = new HashMap<>();
         initializeAssignments(assignments);
@@ -170,9 +162,7 @@ public class BaselineAlgorithms {
         return new BaselineResult("Load Balanced", assignments, calculateUtility(assignments));
     }
     
-    /**
-     * Signal Strength Based: Assigns users based on signal strength/SINR
-     */
+    /** Assign users based on estimated signal strength (SINR-like metric). */
     public BaselineResult signalStrengthBasedAssignment() {
         Map<Object, Set<MobileUser>> assignments = new HashMap<>();
         initializeAssignments(assignments);

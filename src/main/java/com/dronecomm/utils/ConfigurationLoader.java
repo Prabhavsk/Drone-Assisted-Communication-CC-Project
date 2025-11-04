@@ -11,8 +11,8 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Configuration loader for simulation parameters.
- * Loads configuration from JSON files and properties files.
+ * Load simulation configuration from JSON or properties files.
+ * Falls back to sensible defaults when files are missing or invalid.
  */
 public class ConfigurationLoader {
     

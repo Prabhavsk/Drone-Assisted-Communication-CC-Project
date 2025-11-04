@@ -4,7 +4,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Statistical validation framework for research results
+ * Statistical helper methods (CI, t-test, ANOVA, correlation, fairness).
+ * Lightweight utilities for quick validation and reporting inside the simulator.
  */
 public class StatisticalValidation {
     

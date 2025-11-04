@@ -1,5 +1,9 @@
 package com.dronecomm.enums;
 
+/**
+ * Enumerates the implemented algorithms (both game-theoretic and baselines)
+ * used in experiments. Each entry includes a human-friendly display name.
+ */
 public enum AlgorithmType {
     // Game-theoretic algorithms
     NASH_EQUILIBRIUM("Nash Equilibrium"),

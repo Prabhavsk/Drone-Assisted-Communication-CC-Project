@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * Represents a Ground Base Station (GBS) in the air-ground collaborative network.
- * 
- * A GBS is a fixed terrestrial infrastructure that provides wireless communication
- * services to mobile users with high reliability and power.
+ * Ground Base Station (GBS).
+ *
+ * Fixed high-power station used to serve nearby users and participate in
+ * load-balancing or game-theoretic flows. Comments are concise and practical.
  */
 public class GroundBaseStation {
     

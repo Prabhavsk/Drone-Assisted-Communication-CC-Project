@@ -9,22 +9,10 @@ import com.dronecomm.algorithms.AlphaFairnessLoadBalancer.FairnessPolicy;
 import java.util.*;
 
 /**
- * AGC-TLB Problem Formulation Implementation
- * 
- * This class implements the complete AGC-TLB (Air-Ground Collaborative Traffic Load Balancing)
- * problem formulation from the research paper:
- * 
- * Problem (10):
- * min phialpha(rho) subject to:
- * - Constraint (10b): Sum xij = 1, xij in {0,1}, foralli in I (each UE to one BS)
- * - Constraint (10c): Sum xij <= Nj, forallj in J^s (capacity constraints)
- * - Constraint (10d): 0 <= rhoj <= rhomax, forallj in J^s (load thresholds)
- * - Constraint (10e): qj in F, forallj in J (deployment region)
- * 
- * Where:
- * - Q := {qj, j in J} (DBS positions)
- * - X := {xij, i in I, j in J^s} (user associations)
- * - F = [xmin, xmax] * [ymin, ymax] * [hmin, hmax] (feasible region)
+ * Orchestrates the AGC-TLB alternating optimization (user association + DBS deployment).
+ *
+ * Provides a convenience implementation used by the simulator: runs P-SCA, the potential
+ * game for deployment, checks constraints and returns a solution summary.
  */
 public class AGCTLBProblemFormulation {
     
@@ -117,8 +105,10 @@ public class AGCTLBProblemFormulation {
     }
     
     /**
-     * Solve the complete AGC-TLB problem using alternating optimization
-     * Algorithm 1 from the research paper
+     * Solve AGC-TLB by alternating between user association and DBS deployment.
+     * Returns a solution object with positions, assignments, loads and a basic
+     * feasibility report. This is a convenience implementation used by the
+     * simulator and not intended as a production optimizer.
      */
     public static AGCTLBSolution solveAGCTLB(
             List<DroneBaseStation> droneStations,

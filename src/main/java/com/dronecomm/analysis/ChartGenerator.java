@@ -25,6 +25,11 @@ public class ChartGenerator {
         this.timestamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
         createChartsDirectory();
     }
+
+    /**
+     * Create and save charts (throughput, latency, energy, satisfaction).
+     * Produces PNG files used by analysis and reports.
+     */
     
     private void createChartsDirectory() {
         File chartsDir = new File(CHARTS_DIR);
@@ -34,7 +39,7 @@ public class ChartGenerator {
     }
     
     /**
-     * Create readable scenario labels for charts
+     * Build a human-friendly label for a scenario + user count used in charts.
      */
     private String getReadableScenarioLabel(ScenarioType scenario, Integer userCount) {
         String scenarioName;
@@ -64,14 +69,13 @@ public class ChartGenerator {
     }
     
     public void generateAllCharts(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {
+        // Generate the main comparison charts used by the analysis pipeline.
         generateThroughputComparisonChart(allResults);
         generateLatencyComparisonChart(allResults);
         generateEnergyConsumptionChart(allResults);
-        // QoS Violation chart removed - not in research paper
         generateUserSatisfactionChart(allResults);
         generateScalabilityChart(allResults);
-        // Disabled: Algorithm Performance Summary chart (4-column view with hardcoded demo values)
-        // generateAlgorithmPerformanceRadarChart(allResults);
+        // Note: some optional charts are intentionally disabled to keep outputs focused.
     }
     
     private void generateThroughputComparisonChart(Map<ScenarioType, Map<Integer, Map<AlgorithmType, ResultsExporter.SimulationResult>>> allResults) {

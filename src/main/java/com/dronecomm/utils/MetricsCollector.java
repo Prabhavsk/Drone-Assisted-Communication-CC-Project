@@ -8,8 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Collects and computes various QoS metrics during simulation.
- * Tracks performance indicators for load balancing evaluation.
+ * Collect QoS and performance metrics during a simulation run.
+ * Stores time-series and summary stats (latency, throughput, energy, load, satisfaction).
  */
 public class MetricsCollector {
     

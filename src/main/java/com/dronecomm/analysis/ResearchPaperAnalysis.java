@@ -9,6 +9,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * Produce validation reports comparing simulation outputs to the paper's expected results.
+ * Writes concise, human-readable summaries for verification and reporting.
+ */
 public class ResearchPaperAnalysis {
     private static final String ANALYSIS_DIR = "results/analysis";
     private final String timestamp;

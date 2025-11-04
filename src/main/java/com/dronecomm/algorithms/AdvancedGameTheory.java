@@ -8,20 +8,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Advanced mathematical game theory implementations for drone-assisted communication networks.
- * 
- * This class provides rigorous mathematical formulations based on:
- * - Nash Equilibrium Theory with best response dynamics
- * - Stackelberg Game Theory with optimization
- * - Cooperative Game Theory with Shapley values
- * - Auction Theory with VCG mechanisms
- * 
- * Mathematical models include:
- * - Utility functions with multi-objective optimization
- * - Channel modeling with path loss and interference
- * - Energy consumption models
- * - QoS satisfaction functions
- * - Load balancing metrics
+ * Game-theoretic routines (Nash, Stackelberg, cooperative) used by the simulator.
+ *
+ * Focused on clarity and traceability so results are easy to follow in experiments.
  */
 public class AdvancedGameTheory {
     

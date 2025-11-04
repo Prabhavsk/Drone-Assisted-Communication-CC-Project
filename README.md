@@ -52,6 +52,8 @@ If you do not have Java and Maven installed, follow these steps:
 
 If the above command does not work, ensure the `pom.xml` file is correctly configured and all dependencies are installed.
 
+Note about CloudSim: `TECHNOLOGY_STACK.md` mentions CloudSim Plus as a possible simulation framework. A repository scan shows no direct CloudSim imports under `src/main/java`, so the project runs by default without CloudSim. If you plan to integrate CloudSim features, add the appropriate dependency to `pom.xml` and adapt the main entry points.
+
 ### Example Usage
 - After running the simulation, you should see logs indicating the progress of the simulation.
 - Results will be saved in the `results/` directory.

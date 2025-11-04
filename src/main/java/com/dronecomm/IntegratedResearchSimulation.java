@@ -6,8 +6,12 @@ import com.dronecomm.enums.AlgorithmType;
 import com.dronecomm.enums.ScenarioType;
 import java.util.*;
 
+/**
+ * Lightweight runner for exercising the research algorithms end-to-end.
+ * Produces concise summaries per scenario/user-count to validate and
+ * compare algorithm behavior quickly.
+ */
 public class IntegratedResearchSimulation {
-    
     private static final int SIMULATION_AREA_WIDTH = 5000;
     private static final int SIMULATION_AREA_HEIGHT = 5000;
     private static final int[] USER_COUNTS = {50, 100, 150, 200};
@@ -43,12 +47,12 @@ public class IntegratedResearchSimulation {
         }
     }
     
+    // Run a single research-algorithm test on a freshly created topology
     private SimulationResults runResearchAlgorithmSimulation(ScenarioType scenario, int userCount, AlgorithmType algorithm) {
-        
         List<MobileUser> users = generateUsers(userCount, scenario);
         List<DroneBaseStation> drones = generateDrones(6);
         List<GroundBaseStation> groundStations = generateGroundStations(4);
-        
+
         return executeWithResearchAlgorithms(users, drones, groundStations, algorithm);
     }
     

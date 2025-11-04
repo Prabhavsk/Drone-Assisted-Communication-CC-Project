@@ -3,7 +3,8 @@ package com.dronecomm.analysis;
 import java.util.*;
 
 /**
- * Mathematical analysis tools for theoretical validation
+ * Small math helpers for complexity, convergence and stability analysis.
+ * Provides readable estimations for the analysis pipeline (not a full math library).
  */
 public class MathematicalAnalysis {
     

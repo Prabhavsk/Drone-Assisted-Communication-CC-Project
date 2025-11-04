@@ -8,10 +8,10 @@ import com.dronecomm.algorithms.AlphaFairnessLoadBalancer.FairnessPolicy;
 import java.util.*;
 
 /**
- * Penalty-based Successive Convex Approximation (P-SCA) Algorithm.
- * 
- * Solves user association with binary variable relaxation and convex approximation.
- * Uses penalty methods to convert the MINLP problem into iterative convex sub-problems.
+ * Penalty-based Successive Convex Approximation (P-SCA) solver.
+ *
+ * A readable, experiment-focused implementation that relaxes binary associations
+ * and refines them via penalized convex subproblems.
  */
 public class PSCAAlgorithm {
     
@@ -22,9 +22,7 @@ public class PSCAAlgorithm {
     private static final int MAX_INNER_ITERATIONS = 100;
     private static final double MIN_LAMBDA = 1e-6;
     
-    /**
-     * P-SCA optimization result containing assignments, convergence info, and metrics.
-     */
+    /** Result object returned by the P-SCA solver. */
     public static class PSCAResult {
         public final Map<MobileUser, Map<Object, Double>> relaxedAssignments;
         public final Map<Object, Set<MobileUser>> binaryAssignments;
@@ -47,14 +45,8 @@ public class PSCAAlgorithm {
     }
     
     /**
-     * Solve user association subproblem using P-SCA algorithm
-     * 
-     * @param droneStations Available drone base stations
-     * @param groundStations Available ground base stations  
-     * @param users Mobile users to assign
-     * @param policy alpha-fairness policy
-     * @param meanPacketSize Average packet size for load calculation
-     * @return PSCAResult containing optimal assignments
+     * Solve user association using a simple P-SCA loop.
+     * Returns relaxed and binary assignments plus final loads and convergence info.
      */
     public static PSCAResult solveUserAssociation(
             List<DroneBaseStation> droneStations,

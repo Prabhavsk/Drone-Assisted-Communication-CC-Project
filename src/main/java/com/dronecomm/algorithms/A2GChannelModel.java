@@ -6,9 +6,10 @@ import com.dronecomm.entities.MobileUser;
 import com.dronecomm.entities.Position3D;
 
 /**
- * Air-to-Ground channel propagation model for drone communications.
- * Implements probabilistic path loss calculation based on elevation angle
- * with Line-of-Sight and Non-Line-of-Sight probability modeling.
+ * Air-to-ground channel helpers.
+ *
+ * Provides simple, reproducible functions for LoS probability, path loss and SNR/SINR
+ * calculations used across the simulator.
  */
 public class A2GChannelModel {
     

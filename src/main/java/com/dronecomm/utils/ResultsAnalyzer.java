@@ -3,7 +3,9 @@ package com.dronecomm.utils;
 import java.util.Map;
 
 /**
- * Analyzes simulation results and generates performance reports.
+ * Simple result analysis helpers that print human-readable summaries and
+ * reports to the console. Used by runners to quickly inspect simulation
+ * outcomes during development and debugging.
  */
 public class ResultsAnalyzer {
     

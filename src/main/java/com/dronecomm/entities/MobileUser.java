@@ -5,18 +5,11 @@ import java.util.List;
 import java.util.Random;
 
 /**
- * Represents a mobile user in the drone-assisted communication network.
- * 
- * Mobile users move within the simulation area and generate traffic that needs
- * to be served by either Ground Base Stations (GBS) or Drone Base Stations (DBS).
- * The system uses game-theoretic approaches to optimally assign users to base stations.
- * 
- * Key characteristics:
- * - Mobile with configurable movement patterns
- * - Generates variable traffic loads
- * - QoS requirements (latency, throughput)
- * - Connection management with base stations
- * - Handover support between base stations
+ * Mobile user entity.
+ *
+ * Models basic user behavior: movement patterns, traffic generation and
+ * lightweight QoS metrics used by the load-balancers. Designed to be
+ * realistic enough for experiments while remaining fast.
  */
 public class MobileUser {
     
@@ -100,7 +93,7 @@ public class MobileUser {
     }
     
     /**
-     * Updates user position based on movement pattern
+     * Update position according to the configured movement pattern.
      */
     public void updatePosition(double deltaTime) {
         switch (movementPattern) {
@@ -202,7 +195,7 @@ public class MobileUser {
     }
     
     /**
-     * Generates traffic data based on current data rate
+     * Generates traffic (simple packet-size units) for the current time step.
      */
     public List<Double> generateTraffic(double deltaTime) {
         List<Double> newTraffic = new ArrayList<>();
@@ -228,7 +221,7 @@ public class MobileUser {
     }
     
     /**
-     * Connects to a base station
+     * Connect this user to a base station (DBS or GBS). Tracks handovers.
      */
     public void connectToBaseStation(Object baseStation) {
         if (isConnected && connectedBaseStation != baseStation) {

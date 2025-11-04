@@ -36,6 +36,8 @@ src/main/java/com/dronecomm/
 │   └── ScenarioType.java                         6 scenarios
 └── simulation/scenarios/
     └── (scenario-specific files)
+
+Note: The `TECHNOLOGY_STACK.md` mentions CloudSim Plus as a possible simulation engine. A quick scan shows no CloudSim imports under `src/main/java`, so the project runs without CloudSim by default. Add CloudSim to `pom.xml` only if you integrate CloudSim-specific code paths.
 ```
 
 ---

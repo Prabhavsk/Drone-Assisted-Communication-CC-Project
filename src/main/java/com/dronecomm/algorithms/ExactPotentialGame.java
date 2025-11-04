@@ -9,14 +9,10 @@ import com.dronecomm.algorithms.AlphaFairnessLoadBalancer.FairnessPolicy;
 import java.util.*;
 
 /**
- * Exact Potential Game with Gibbs Sampling for DBS Deployment
- * 
- * This class implements the exact potential game formulation from the research paper:
- * - 3D discrete grid deployment: X * Y * H with granularities deltax, deltay, deltah
- * - State transfer probability: Pr(a_j^t|a_j^{t-1}) = exp(-C_j)/Sumexp(-C_j)
- * - Constrained strategy profiles with neighboring locations
- * - Boltzmann parameter  for exploration/exploitation tradeoff
- * - Convergence to Nash Equilibrium through potential function minimization
+ * Potential-game based DBS deployment helper.
+ *
+ * Uses a 3D grid and Gibbs-sampling updates to find DBS placements. Prioritises
+ * clarity and reproducibility for experiments.
  */
 public class ExactPotentialGame {
     
@@ -121,7 +117,8 @@ public class ExactPotentialGame {
     }
     
     /**
-     * Solve DBS deployment using exact potential game with Gibbs sampling
+     * Run Gibbs-sampling updates to find a low-potential DBS deployment.
+     * Returns positions, convergence history and final user assignments.
      */
     public PotentialGameResult solveDeployment(
             List<DroneBaseStation> droneStations,

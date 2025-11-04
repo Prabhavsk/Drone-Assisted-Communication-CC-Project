@@ -7,24 +7,14 @@ import com.dronecomm.entities.MobileUser;
 import java.util.*;
 
 /**
- * Alpha-Fairness Load Balancing Implementation
- * 
- * This class implements the alpha-fairness load balancing formulation from the research paper:
- * - Equation (8): rhoj = Sum xij * lambdai * mu / rij (traffic load calculation)
- * - Equation (9): phialpha(rho) = Sum(1-rhoj)^(1-alpha)/(alpha-1) for alpha>=0, alpha!=1
- *                        = -Sumlog(1-rhoj) for alpha=1
- * 
- * Different alpha values provide different fairness policies:
- * - alpha = 0: Min-sum load policy (maximize total idle time)
- * - alpha = 1: Proportional-fair policy (maximize geometric mean of idle time)
- * - alpha = 2: Latency-optimal policy (minimize average latency)
- * - alpha = infinity: Min-max load policy (minimize maximum load)
+ * Alpha-fairness load balancing helpers.
+ *
+ * Implements the alpha-fair objective and small heuristics to compare policies
+ * (alpha = 0, 1, 2, ∞) in a readable way.
  */
 public class AlphaFairnessLoadBalancer {
     
-    /**
-     * Fairness policy types corresponding to different alpha values
-     */
+    /** Fairness policy types (different alpha values). */
     public enum FairnessPolicy {
         MIN_SUM(0.0),           // alpha = 0: Minimize sum of loads
         PROPORTIONAL_FAIR(1.0), // alpha = 1: Proportional fairness

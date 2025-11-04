@@ -12,6 +12,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Exports simulation outputs (CSV, summary and detailed reports) to disk.
+ * Simple wrapper to serialize SimulationResult objects for the analysis pipeline.
+ */
 public class ResultsExporter {
     private static final String RESULTS_DIR = "results";
     private final String timestamp;
@@ -32,6 +36,7 @@ public class ResultsExporter {
         }
     }
     
+    /** Export CSV, summary and detailed analysis outputs. */
     public void exportSimulationResults(Map<ScenarioType, Map<Integer, Map<AlgorithmType, SimulationResult>>> allResults) {
         exportCSVResults(allResults);
         exportSummaryAnalysis(allResults);
