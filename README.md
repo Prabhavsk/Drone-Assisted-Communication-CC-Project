@@ -1,105 +1,103 @@
-# Drone Communication Simulation Project
+# Drone-Assisted Communication Simulation
 
-## Overview
-This project simulates drone-assisted communication scenarios using advanced algorithms and analysis tools. It includes various modules for channel modeling, load balancing, and game-theoretic approaches.
+This project simulates dynamic drone-assisted communication scenarios, focusing on advanced game-theoretic algorithms for load balancing and resource allocation. It models a heterogeneous network (HetNet) where mobile Unmanned Aerial Vehicles (UAVs) act as base stations to support fixed ground stations and serve mobile users.
+
+## Core Features
+
+- Simulates a HetNet with **6 Drones**, **4 Ground Stations**, and **50-200 Mobile Users**
+- Implements **4 Game-Theoretic algorithms** for drone deployment and load balancing
+- Includes **6 Baseline algorithms** for performance comparison
+- Runs a comprehensive batch of **200 simulation permutations** (10 algorithms × 5 scenarios × 4 user counts)
+- Generates detailed CSV reports, analysis files, and performance charts
+
+## Algorithms Implemented
+
+This simulation compares the performance of ten different algorithms.
+
+### Game-Theoretic Algorithms
+
+1. **Nash Equilibrium**: Based on a Potential Game framework using Best Response Dynamics
+2. **Stackelberg Game**: A Leader-Follower model for sequential optimization
+3. **Cooperative Game**: Models Coalition Formation and uses the Shapley Value for fair allocation
+4. **Auction-Based**: Utilizes a Vickrey-Clarke-Groves (VCG) mechanism for efficient allocation
+
+### Baseline Algorithms
+
+1. Random Assignment
+2. Round-Robin
+3. Greedy Assignment
+4. Nearest-Neighbor
+5. Load-Balanced (Simple)
+6. Signal-Strength Based
+
+## Simulation Environment
+
+The simulation is configured via the `default.properties` file.
+
+### Network Entities
+
+- **DroneBaseStation.java**: 6 mobile UAVs that model energy drain
+- **GroundBaseStation.java**: 4 fixed terrestrial base stations
+- **MobileUser.java**: 50, 100, 150, or 200 mobile users with varying mobility
+- **Position3D.java**: Handles all 3D and 2D distance calculations
+
+### Simulation Scenarios
+
+The algorithms are tested against 5 distinct scenarios to measure robustness.
+
+| Scenario | Description |
+|----------|-------------|
+| LOW_MOBILITY | Users are static or near-static |
+| HIGH_MOBILITY | Users move according to a mobility model |
+| URBAN_HOTSPOT | 70% of users are clustered in a small area |
+| MIXED_TRAFFIC | Users have different and mixed traffic patterns |
+| ENERGY_CONSTRAINED | Drones have limited battery life |
 
 ## Prerequisites
-If you do not have Java and Maven installed, follow these steps:
 
-1. **Install Java Development Kit (JDK):**
-   - Download the latest JDK from [Oracle](https://www.oracle.com/java/technologies/javase-downloads.html) or [OpenJDK](https://openjdk.org/install/).
-   - Follow the installation instructions for your operating system.
-   - Verify the installation:
-     ```bash
-     java -version
-     ```
+- **Java Development Kit (JDK)**: Java 21 or newer
+- **Apache Maven**: Used to compile the project, manage dependencies, and execute the simulation
 
-2. **Install Maven:**
-   - Download Maven from the [Apache Maven website](https://maven.apache.org/download.cgi).
-   - Follow the installation instructions for your operating system.
-   - Verify the installation:
-     ```bash
-     mvn -version
-     ```
+## How to Run
 
-3. **Set Environment Variables:**
-   - Ensure `JAVA_HOME` and `MAVEN_HOME` are set in your system's environment variables.
-   - Add `JAVA_HOME/bin` and `MAVEN_HOME/bin` to your system's PATH.
+This project is designed for one-command execution. The command will automatically compile the project and run the entire 200-simulation experiment.
 
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Prabhavsk/DroneCommProject.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd DroneCommProject
-   ```
-3. Install dependencies using Maven:
-   ```bash
-   mvn clean install
-   ```
+From the project's root directory, run:
 
-## Running the Simulation
-1. Compile the project:
-   ```bash
-   mvn clean compile
-   ```
-2. Run the main simulation class:
-   ```bash
-   mvn clean verify
-   ```
+```bash
+mvn clean verify
+```
 
-If the above command does not work, ensure the `pom.xml` file is correctly configured and all dependencies are installed.
+** Warning**: This is a computationally intensive process. It executes 200 separate 1-hour (3600-timestep) simulations, for a total of 720,000 timesteps. This will take a significant amount of time and will generate all result files in the `results/` directory upon completion.
 
-Note about CloudSim: `TECHNOLOGY_STACK.md` mentions CloudSim Plus as a possible simulation framework. A repository scan shows no direct CloudSim imports under `src/main/java`, so the project runs by default without CloudSim. If you plan to integrate CloudSim features, add the appropriate dependency to `pom.xml` and adapt the main entry points.
+## Outputs and Analysis
 
-### Example Usage
-- After running the simulation, you should see logs indicating the progress of the simulation.
-- Results will be saved in the `results/` directory.
+### Output File Structure
 
-### Outputs
-The simulation generates the following outputs:
+All outputs are saved to the `results/` directory, which is organized as follows:
 
-1. **Charts**:
-   - Visualizations of communication metrics such as throughput, latency, energy consumption, and QoS violations.
-   - Saved as `.png` files in the `results/charts/` directory.
+- `results/csv/`: Contains the primary data output, including `simulation_results_<timestamp>.csv`
+- `results/charts/`: Contains auto-generated PNG charts comparing algorithm performance
+- `results/analysis/`: Contains text files with a summary and detailed analysis
 
-2. **Analysis Reports**:
-   - Detailed performance metrics and summaries.
-   - Saved as `.txt` or `.csv` files in the `results/analysis/` directory.
+### Key Performance Indicators (KPIs)
 
-3. **Research Paper Outputs**:
-   - Figures and tables for research validation.
-   - Saved in the `results/research_paper_figures/` directory.
+The simulation collects a wide range of metrics via `MetricsCollector.java`. The final CSV report provides the following:
 
-### Troubleshooting
-- **Issue**: `mvn exec:java` fails with a `ClassNotFoundException`.
-  - **Solution**: Ensure the `pom.xml` file includes the `exec-maven-plugin` and all dependencies are correctly specified.
-- **Issue**: Results are not generated.
-  - **Solution**: Verify write permissions for the `results/` directory and check the logs for errors.
-- **Issue**: Charts are not displayed correctly.
-  - **Solution**: Ensure the `results/charts/` directory exists and is writable.
+| Metric | Unit | Goal |
+|--------|------|------|
+| Throughput | Mbps | Higher |
+| Latency | ms | Lower |
+| Total Energy | Joules (J) | Lower |
+| Load Variance | 0.0 - 1.0 | Higher |
+| User Satisfaction | % | Higher |
+| QoS Violations | % | Lower |
 
-## Results
-The simulation validates the research paper's findings on game-theoretic load balancing in drone-assisted communication networks. Key findings include:
+### Success Indicators
 
-- Cooperative Game Theory demonstrated the best overall performance.
-- Auction-based approaches excelled in high-density scenarios.
-- Energy optimization significantly influenced drone deployment strategies.
+A simulation run is considered fully successful if it meets all the following criteria:
 
-### Sample Output
-- **Chart**: `results/charts/throughput_comparison.png`
-- **Report**: `results/analysis/summary_analysis.txt`
-- **Research Figure**: `results/research_paper_figures/Figure1_SystemModel.png`
-
-## Project Structure
-- `src/main/java`: Contains the source code for the simulation.
-- `lib/`: Includes external libraries required for the project.
-- `results/`: Stores output files such as charts, analysis results, and research paper figures.
-
-## Contributing
-Feel free to fork the repository and submit pull requests for improvements or bug fixes.
-
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+1. The `mvn clean verify` command terminates with a "BUILD SUCCESS" message
+2. The file `results/csv/simulation_results_<timestamp>.csv` exists
+3. The CSV file contains 201 lines (1 header row + 200 data rows)
+4. The `results/charts/` directory contains ≥ 5 non-empty PNG files
