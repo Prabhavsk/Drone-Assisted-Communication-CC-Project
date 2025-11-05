@@ -2,7 +2,7 @@ RESEARCH PAPER VALIDATION ANALYSIS
 ===================================================
 
 Paper Title: Game-Theoretic Load Balancing in Drone-Assisted Communication Networks
-Generated: Sat Nov 01 23:07:00 IST 2025
+Generated: Wed Nov 05 19:22:34 IST 2025
 
 METHODOLOGY VALIDATION:
 -------------------------
@@ -32,7 +32,7 @@ Expected Results (from paper):
 Simulation Results:
 - Cooperative Game improvement: -16.8% (vs Nash baseline)
 - Nash Equilibrium stability index: 0.41 (lower = more stable)
-- Stackelberg energy efficiency: -85.7% better than worst case
+- Stackelberg energy efficiency: -85.5% better than worst case
 - Auction performance with >150 users: Confirmed superior
 
 RESULT ALIGNMENT:

@@ -1,0 +1,206 @@
+% Drone-Assisted Communication - Project Report
+% Auto-generated LaTeX report summarising the project
+\documentclass[11pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{caption}
+\geometry{margin=1in}
+\title{Drone-Assisted Communication: Simulation, Algorithms and Analysis\\Project Report}
+\author{Repository: Drone-Assisted-Communication-CC-Project \\ Owner: Prabhavsk}
+\date{\today}
+\begin{document}
+\maketitle
+\begin{abstract}
+This document summarises the Drone-Assisted Communication simulation project. It presents the problem addressed, the technologies and tools used, the architecture and algorithms implemented, results and analyses produced by the project, and conclusions with recommendations for future work. The report collates information available in the repository and the analysis outputs under `results/`.
+\end{abstract}
+\tableofcontents
+\clearpage
+\section{Introduction}
+\subsection{Topic}
+The project implements a simulation platform for evaluating load-balancing and resource allocation strategies in drone-assisted wireless communication networks. The system models drones acting as aerial base stations (Drone Base Stations - DBS) together with conventional ground base stations (GBS) to serve mobile users.
+\subsection{Problem Statement}
+Mobile networks can benefit from aerial base stations to increase coverage and relieve congested ground infrastructure. The project focuses on user association and DBS deployment for improved throughput, fairness and energy efficiency. The core research problems include:
+\begin{itemize}
+  \item Formulating user-to-base-station association under capacity and QoS constraints.
+  \item Designing DBS deployment and movement strategies that improve system-level metrics.
+  \item Comparing game-theoretic approaches to baseline heuristics for fair and efficient load balancing.
+  \item Producing reproducible analysis and charts for research validation.
+\end{itemize}
+\section{Motivation and Objectives}
+The motivation of this project is to experiment with advanced algorithms (game theory, optimization, auctions) in a controlled simulation environment to evaluate trade-offs between throughput, fairness and energy consumption in air-ground collaborative networks. The primary objectives are:
+\begin{enumerate}
+  \item Implement a modular simulator that allows swapping algorithms and scenarios.
+  \item Implement several algorithmic approaches: baseline heuristics, alpha-fairness optimizers, P-SCA, potential games, and auction mechanisms.
+  \item Collect metrics and generate charts suitable for research publications.
+  \item Keep the codebase readable and reproducible (compile-ready Maven project and clear documentation).
+\end{enumerate}
+\section{Technology Stack and Tools}
+\subsection{Languages and Build}
+\begin{itemize}
+  \item Java 21 — source language used throughout the project.
+  \item Apache Maven — build tool and dependency management (project uses `pom.xml`).
+\end{itemize}
+\subsection{Libraries and Frameworks}
+Based on `TECHNOLOGY_STACK.md` and repository dependencies, the project uses (or documents) the following libraries:
+\begin{itemize}
+  \item Apache Commons Math (3.6.1) — mathematical utilities.
+  \item Jackson (2.15.x) — JSON parsing for configuration and results.
+  \item JFreeChart (1.5.3) — chart generation for PNG outputs.
+  \item SLF4J + Logback — logging.
+  \item JUnit 5 + Mockito — testing frameworks (project currently contains no tests in `src/test/java`).
+  \item CloudSim Plus 4.0.0 — documented as a possible simulation framework but not directly imported in `src/main/java`.
+\end{itemize}
+\subsection{Tools}
+\begin{itemize}
+  \item Git — version control.
+  \item Maven — `mvn -DskipTests compile` used during edits to validate Java syntax/Javadoc integrity.
+  \item pdflatex (optional, local) — to build this report PDF from the LaTeX source.
+\end{itemize}
+\section{Project Structure and Key Components}
+The Java sources are under `src/main/java/com/dronecomm/`. Major packages and responsibilities include:
+\begin{description}[leftmargin=!,labelwidth=3cm]
+  \item[algorithms] Implementations of algorithms and models (A2G channel, AF relay model, P-SCA solver, potential game, alpha-fairness load balancer, auction mechanism and baselines).
+  \item[analysis] Chart generation, detailed data collection, mathematical analysis helpers, results exporter, and statistical validation.
+  \item[entities] Domain objects such as `DroneBaseStation`, `GroundBaseStation`, `MobileUser`, and `Position3D`.
+  \item[simulation.scenarios] Scenario manager and helpers for assembling experiment topologies.
+  \item[utils] Configuration loader, metrics collector, results writer and helpers.
+  \item[enums] `AlgorithmType` and `ScenarioType` enumerations for experiments.
+  \item[main runners] `DroneAssistedCommunicationSimulation` and `IntegratedResearchSimulation` — entry points for full and targeted runs.
+\end{description}
+\section{Algorithms and Methods}
+The repository implements several algorithmic approaches for user association and DBS deployment. Key modules:
+\begin{itemize}
+  \item A2GChannelModel: air-to-ground channel computations (LoS/NLoS probabilistic modeling and path-loss/SNR helpers).
+  \item AFRelayModel: amplify-and-forward relay computations and relay selection helpers.
+  \item AlphaFairnessLoadBalancer: alpha-fair objective evaluation and load calculations for fairness policies.
+  \item PSCAAlgorithm: penalty-based successive convex approximation to solve the relaxed MINLP user association subproblems.
+  \item ExactPotentialGame: potential-game based DBS deployment using Gibbs sampling to explore positions.
+  \item VCGAuctionMechanism: straightforward Vickrey-Clarke-Groves auction helper for allocation and price computation.
+  \item BaselineAlgorithms: random, round-robin, greedy, nearest-neighbor, load-balanced and signal-strength heuristics for comparisons.
+  \item GameTheoreticLoadBalancer: coordinator that wraps the research algorithms and provides fallbacks to keep simulations robust.
+\end{itemize}
+\section{Implementation Notes}
+\subsection{Design choices}
+The code aims for clarity and reproducibility rather than raw optimization. Important design points:
+\begin{itemize}
+  \item Entities are lightweight objects with helper methods for distance and state.
+  \item Algorithms return compact result objects that the analysis pipeline converts to export-friendly formats.
+  \item Results are exported to `results/` (CSV, charts, analysis text) and a dedicated `results/research_paper_figures` folder for publication figures.
+\end{itemize}
+\subsection{Comment Humanization Pass}
+A code maintenance pass was performed to "humanise" the comments across the repository. This pass:
+\begin{itemize}
+  \item Rewrote class-level Javadocs and many method-level comments into concise, friendly language.
+  \item Removed or consolidated noisy/overly verbose comments while preserving intent.
+  \item Never altered algorithm logic, method signatures, or runtime behavior.
+  \item Verified compilation after batches of edits with `mvn -DskipTests compile` to catch Javadoc or unclosed-comment mistakes.
+\end{itemize}
+\section{Results and Analysis}
+\subsection{Available outputs}
+The repository contains a `results/` directory with subfolders:
+\begin{itemize}
+  \item `results/csv/` — CSV exports of simulation results.
+  \item `results/charts/` — auto-generated PNG charts (throughput, latency, energy, satisfaction) when JFreeChart is available.
+  \item `results/analysis/` — textual analysis and validation files (including `research_paper_validation_*.txt` and `summary_analysis_*.txt`).
+\end{itemize}
+\subsection{How results are produced}
+Runners such as `DroneAssistedCommunicationSimulation` iterate scenarios, user counts and algorithms. For each setup they:
+\begin{enumerate}
+  \item Create a topology of ground and drone base stations and mobile users.
+  \item Run each algorithm on the same topology (by deep-copying entities) to ensure fairness.
+  \item Collect per-time-step metrics (throughput, latency, energy, load, handoffs, satisfaction) using `MetricsCollector`.
+  \item Export results and generate charts and research figures where dependencies are present.
+\end{enumerate}
+\subsection{Summary of available numeric outputs}
+See `results/csv/simulation_results_2025-11-01_22-50-52.csv` and the textual summaries in `results/analysis/` for concrete numbers. The analysis scripts in `analysis/` compute aggregate metrics (average throughput, average latency, total energy consumption, load balance index, and user satisfaction) and output them in the `results/analysis/` folder.
+\section{Conclusions}
+\begin{itemize}
+  \item The codebase provides a modular platform to compare baseline and research algorithms for drone-assisted load balancing.
+  \item The inclusion of channel models, relay strategies and energy-aware measures enables richer experiments than pure assignment problems.
+  \item The comment-humanization pass improved readability without changing behavior; compilation was verified after edits.
+  \item CloudSim Plus is documented as a supported simulation framework, but a repository scan shows the Java sources in `src/main/java` do not import CloudSim classes — therefore CloudSim is optional and not required for the default runs.
+\end{itemize}
+\section{Limitations and Future Work}
+\begin{itemize}
+  \item Add integration tests (unit and small integration) under `src/test/java` to assert correctness of individual components.
+  \item Add optional CloudSim wiring or an adapter layer if you want to run the experiments inside CloudSim Plus.
+  \item Improve performance (parallel simulation runs, more efficient numerical routines) for large user counts.
+  \item Add reproducible scripts (Dockerfile / CI) to build and run experiments in a controlled environment.
+\end{itemize}
+\section{How to build and run}
+\subsection{Compile Java project}
+From the repository root, run:
+\begin{verbatim}
+mvn -DskipTests compile
+\end{verbatim}
+\subsection{Run the simulation}
+The main runner is `com.dronecomm.DroneAssistedCommunicationSimulation`. Use:
+\begin{verbatim}
+mvn -DskipTests exec:java -Dexec.mainClass="com.dronecomm.DroneAssistedCommunicationSimulation"
+\end{verbatim}
+(Or run the compiled classes via your IDE or `java -cp target/classes:...` with dependency jars.)
+\subsection{Build this report (locally)}
+To build the PDF from the LaTeX source, ensure `pdflatex` is installed and run in the `docs/` directory:
+\begin{verbatim}
+make pdf
+\end{verbatim}
+This will run `pdflatex` twice to resolve the table of contents.
+\clearpage
+\appendix
+\section{Edited files (comment humanization) — snapshot}
+During the humanization pass the following Java files were modified (class/method Javadoc and inline comments only):
+\begin{longtable}{@{}p{0.9\textwidth}@{}}
+\toprule
+\textbf{Modified files} \\
+\midrule
+\endhead
+\small
+src/main/java/com/dronecomm/DroneAssistedCommunicationSimulation.java \\
+src/main/java/com/dronecomm/IntegratedResearchSimulation.java \\
+src/main/java/com/dronecomm/algorithms/A2GChannelModel.java \\
+src/main/java/com/dronecomm/algorithms/AFRelayModel.java \\
+src/main/java/com/dronecomm/algorithms/AGCTLBProblemFormulation.java \\
+src/main/java/com/dronecomm/algorithms/AdvancedGameTheory.java \\
+src/main/java/com/dronecomm/algorithms/AlphaFairnessLoadBalancer.java \\
+src/main/java/com/dronecomm/algorithms/BaselineAlgorithms.java \\
+src/main/java/com/dronecomm/algorithms/ExactPotentialGame.java \\
+src/main/java/com/dronecomm/algorithms/GameTheoreticLoadBalancer.java \\
+src/main/java/com/dronecomm/algorithms/PSCAAlgorithm.java \\
+src/main/java/com/dronecomm/algorithms/VCGAuctionMechanism.java \\
+src/main/java/com/dronecomm/analysis/ChartGenerator.java \\
+src/main/java/com/dronecomm/analysis/DetailedDataCollector.java \\
+src/main/java/com/dronecomm/analysis/MathematicalAnalysis.java \\
+src/main/java/com/dronecomm/analysis/ResearchPaperAnalysis.java \\
+src/main/java/com/dronecomm/analysis/ResearchPaperCharts.java \\
+src/main/java/com/dronecomm/analysis/ResultsExporter.java \\
+src/main/java/com/dronecomm/analysis/StatisticalValidation.java \\
+src/main/java/com/dronecomm/entities/DroneBaseStation.java \\
+src/main/java/com/dronecomm/entities/GroundBaseStation.java \\
+src/main/java/com/dronecomm/entities/MobileUser.java \\
+src/main/java/com/dronecomm/entities/Position3D.java \\
+src/main/java/com/dronecomm/enums/AlgorithmType.java \\
+src/main/java/com/dronecomm/enums/ScenarioType.java \\
+src/main/java/com/dronecomm/simulation/scenarios/ScenarioManager.java \\
+src/main/java/com/dronecomm/utils/ConfigurationLoader.java \\
+src/main/java/com/dronecomm/utils/MetricsCollector.java \\
+src/main/java/com/dronecomm/utils/ResultsAnalyzer.java \\
+src/main/java/com/dronecomm/utils/ResultsWriter.java \\
+\bottomrule
+\end{longtable}
+\section{Appendix: Important files and where to look}
+\begin{itemize}
+  \item `src/main/java/com/dronecomm/DroneAssistedCommunicationSimulation.java` — main orchestrator and experiment runner.
+  \item `src/main/java/com/dronecomm/algorithms/` — contains implementations of the key algorithms mentioned earlier.
+  \item `src/main/java/com/dronecomm/analysis/` — chart generation and analysis pipeline used to create `results/` outputs.
+  \item `README.md`, `HOW_TO_EXECUTE.md`, `TECHNOLOGY_STACK.md` — high-level documentation and execution guidance (these were updated to clarify CloudSim is documented but not required).
+  \item `results/` — outputs from simulation runs and analysis.
+\end{itemize}
+\section{Acknowledgements}
+The project is organized as a research codebase. This report was generated programmatically from repository structure and available analysis files. For further details, inspect the source files in `src/main/java/com/dronecomm/` and the exported analysis in `results/analysis/`.
+\end{document}

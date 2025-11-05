@@ -1,0 +1,167 @@
+DRONE-ASSISTED COMMUNICATION SIMULATION - SUMMARY ANALYSIS
+=============================================================
+
+Generated: Wed Nov 05 19:22:32 IST 2025
+
+SCENARIO: Energy Constrained - Limited drone battery capacity
+--------------------------------------------------
+User Count: 50
+  Best Throughput: Auction-based (728.97 Mbps)
+  Best Latency: Nearest Neighbor (7.79 ms)
+  Best Energy: Auction-based (3457758.88 J)
+  Best Satisfaction: Auction-based (69.58%)
+
+User Count: 100
+  Best Throughput: Auction-based (1425.13 Mbps)
+  Best Latency: Nearest Neighbor (7.68 ms)
+  Best Energy: Auction-based (4687028.62 J)
+  Best Satisfaction: Auction-based (56.83%)
+
+User Count: 150
+  Best Throughput: Stackelberg Game (2038.38 Mbps)
+  Best Latency: Nearest Neighbor (7.86 ms)
+  Best Energy: Auction-based (13273557.84 J)
+  Best Satisfaction: Auction-based (53.81%)
+
+User Count: 200
+  Best Throughput: Random Assignment (2419.80 Mbps)
+  Best Latency: Nearest Neighbor (7.80 ms)
+  Best Energy: Auction-based (29343606.83 J)
+  Best Satisfaction: Stackelberg Game (48.82%)
+
+
+SCENARIO: Urban Hotspot - Dense user concentration
+--------------------------------------------------
+User Count: 50
+  Best Throughput: Auction-based (700.34 Mbps)
+  Best Latency: Nearest Neighbor (7.72 ms)
+  Best Energy: Auction-based (2177703.46 J)
+  Best Satisfaction: Auction-based (69.79%)
+
+User Count: 100
+  Best Throughput: Auction-based (1431.94 Mbps)
+  Best Latency: Signal Strength Based (7.35 ms)
+  Best Energy: Auction-based (4351648.73 J)
+  Best Satisfaction: Nash Equilibrium (57.12%)
+
+User Count: 150
+  Best Throughput: Auction-based (1965.25 Mbps)
+  Best Latency: Nearest Neighbor (7.74 ms)
+  Best Energy: Auction-based (9768675.58 J)
+  Best Satisfaction: Stackelberg Game (53.15%)
+
+User Count: 200
+  Best Throughput: Nearest Neighbor (2510.51 Mbps)
+  Best Latency: Nearest Neighbor (7.74 ms)
+  Best Energy: Nearest Neighbor (19742452.81 J)
+  Best Satisfaction: Stackelberg Game (48.15%)
+
+
+SCENARIO: Mixed Traffic - Various data rate requirements
+--------------------------------------------------
+User Count: 50
+  Best Throughput: Auction-based (724.04 Mbps)
+  Best Latency: Nearest Neighbor (7.53 ms)
+  Best Energy: Auction-based (3196373.76 J)
+  Best Satisfaction: Stackelberg Game (67.85%)
+
+User Count: 100
+  Best Throughput: Auction-based (1431.27 Mbps)
+  Best Latency: Signal Strength Based (7.44 ms)
+  Best Energy: Auction-based (4471913.78 J)
+  Best Satisfaction: Nash Equilibrium (56.72%)
+
+User Count: 150
+  Best Throughput: Auction-based (2069.54 Mbps)
+  Best Latency: Nearest Neighbor (7.53 ms)
+  Best Energy: Greedy Assignment (13769192.89 J)
+  Best Satisfaction: Stackelberg Game (52.08%)
+
+User Count: 200
+  Best Throughput: Stackelberg Game (2495.49 Mbps)
+  Best Latency: Nearest Neighbor (7.68 ms)
+  Best Energy: Nearest Neighbor (27088480.74 J)
+  Best Satisfaction: Nash Equilibrium (47.88%)
+
+
+SCENARIO: Hotspot Scenario - Concentrated user areas
+--------------------------------------------------
+User Count: 50
+  Best Throughput: Auction-based (725.20 Mbps)
+  Best Latency: Nearest Neighbor (6.33 ms)
+  Best Energy: Auction-based (2812256.03 J)
+  Best Satisfaction: Stackelberg Game (66.14%)
+
+User Count: 100
+  Best Throughput: Auction-based (1403.71 Mbps)
+  Best Latency: Nearest Neighbor (6.99 ms)
+  Best Energy: Auction-based (5127265.12 J)
+  Best Satisfaction: Auction-based (58.01%)
+
+User Count: 150
+  Best Throughput: Auction-based (1978.34 Mbps)
+  Best Latency: Nearest Neighbor (7.14 ms)
+  Best Energy: Auction-based (13438363.65 J)
+  Best Satisfaction: Auction-based (51.84%)
+
+User Count: 200
+  Best Throughput: Auction-based (2547.27 Mbps)
+  Best Latency: Nearest Neighbor (7.54 ms)
+  Best Energy: Nash Equilibrium (25181818.02 J)
+  Best Satisfaction: Nash Equilibrium (45.51%)
+
+
+SCENARIO: High Mobility - Fast moving users with frequent handoffs
+--------------------------------------------------
+User Count: 50
+  Best Throughput: Auction-based (700.47 Mbps)
+  Best Latency: Nearest Neighbor (7.21 ms)
+  Best Energy: Auction-based (4810292.90 J)
+  Best Satisfaction: Auction-based (68.63%)
+
+User Count: 100
+  Best Throughput: Auction-based (1437.27 Mbps)
+  Best Latency: Nearest Neighbor (7.51 ms)
+  Best Energy: Auction-based (6811046.14 J)
+  Best Satisfaction: Stackelberg Game (57.51%)
+
+User Count: 150
+  Best Throughput: Greedy Assignment (2022.34 Mbps)
+  Best Latency: Nearest Neighbor (7.68 ms)
+  Best Energy: Auction-based (11735936.95 J)
+  Best Satisfaction: Auction-based (52.89%)
+
+User Count: 200
+  Best Throughput: Stackelberg Game (2496.63 Mbps)
+  Best Latency: Nearest Neighbor (7.71 ms)
+  Best Energy: Nash Equilibrium (29835886.14 J)
+  Best Satisfaction: Nash Equilibrium (48.09%)
+
+
+SCENARIO: Low Mobility - Static and slow moving users
+--------------------------------------------------
+User Count: 50
+  Best Throughput: Auction-based (716.63 Mbps)
+  Best Latency: Signal Strength Based (7.17 ms)
+  Best Energy: Auction-based (3252874.53 J)
+  Best Satisfaction: Auction-based (69.11%)
+
+User Count: 100
+  Best Throughput: Auction-based (1397.77 Mbps)
+  Best Latency: Nearest Neighbor (7.40 ms)
+  Best Energy: Auction-based (6001969.23 J)
+  Best Satisfaction: Nash Equilibrium (56.91%)
+
+User Count: 150
+  Best Throughput: Auction-based (2052.34 Mbps)
+  Best Latency: Nearest Neighbor (7.68 ms)
+  Best Energy: Auction-based (11934964.09 J)
+  Best Satisfaction: Auction-based (52.54%)
+
+User Count: 200
+  Best Throughput: Nearest Neighbor (2532.39 Mbps)
+  Best Latency: Auction-based (7.59 ms)
+  Best Energy: Nearest Neighbor (25392902.16 J)
+  Best Satisfaction: Nash Equilibrium (47.67%)
+
+

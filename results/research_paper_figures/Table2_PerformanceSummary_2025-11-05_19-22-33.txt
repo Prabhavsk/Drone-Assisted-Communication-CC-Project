@@ -3,7 +3,7 @@ Table 2: Algorithm Performance Summary
 Algorithm            | Throughput   | Latency      | Energy       | Satisfaction
                      | (Mbps)       | (ms)         | (MJ)         | (%)         
 -------------------------------------------------------------------------------------
-Nash Equilibrium     |      1601.00 |         8.24 |        13.58 |        55.97
-Stackelberg Game     |      1621.52 |         7.88 |        15.66 |        55.90
-Cooperative Game     |      1390.21 |        21.53 |       111.76 |        30.24
-Auction-based        |      1657.86 |         7.98 |        12.14 |        55.82
+Nash Equilibrium     |      1600.35 |         8.23 |        13.64 |        55.93
+Stackelberg Game     |      1632.48 |         7.91 |        15.05 |        56.03
+Cooperative Game     |      1390.17 |        21.53 |       111.76 |        30.24
+Auction-based        |      1657.56 |         7.98 |        12.16 |        55.81
