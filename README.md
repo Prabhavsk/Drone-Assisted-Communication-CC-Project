@@ -68,7 +68,7 @@ From the project's root directory, run:
 mvn clean verify
 ```
 
-** Warning**: This is a computationally intensive process. It executes 200 separate 1-hour (3600-timestep) simulations, for a total of 720,000 timesteps. This will take a significant amount of time and will generate all result files in the `results/` directory upon completion.
+**Warning**: This is a computationally intensive process. It executes 200 separate 1-hour (3600-timestep) simulations, for a total of 720,000 timesteps. This will take a significant amount of time and will generate all result files in the `results/` directory upon completion.
 
 ## Outputs and Analysis
 
